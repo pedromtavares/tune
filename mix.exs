@@ -46,7 +46,7 @@ defmodule Tune.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:ueberauth_spotify, "~> 0.2.1"},
-      {:finch, "~> 0.3.0"},
+      {:finch, "~> 0.4.0"},
       {:gen_state_machine, "~> 2.1"},
       {:vapor, "~> 0.10.0"},
       {:anonymous_name_generator, "~> 0.1.3"},
@@ -56,7 +56,7 @@ defmodule Tune.MixProject do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:floki, ">= 0.0.0", only: :test},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
-      {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.5.0-rc.4", only: [:dev, :test], runtime: false},
       {:mox, "~> 1.0", only: :test},
       {:stream_data, "~> 0.5.0", only: :test},
       {:eventually, "~> 1.1", only: :test}

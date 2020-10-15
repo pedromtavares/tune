@@ -24,6 +24,9 @@ defmodule TuneWeb.Telemetry do
     [
       # Tune Metrics
       summary("tune.session.count.active"),
+      counter("tune.spotify.api_error.count",
+        tags: [:error_type]
+      ),
 
       # Phoenix Metrics
       summary("phoenix.endpoint.stop.duration",
@@ -51,8 +54,16 @@ defmodule TuneWeb.Telemetry do
       summary("vm.total_run_queue_lengths.io"),
 
       # HTTP
-      summary("finch.request.stop.duration", unit: {:native, :millisecond}, tags: [:path]),
-      summary("finch.response.stop.duration", unit: {:native, :millisecond}, tags: [:path])
+      summary("finch.request.stop.duration",
+        unit: {:native, :millisecond},
+        tags: [:normalized_path],
+        tag_values: &add_normalized_path/1
+      ),
+      summary("finch.response.stop.duration",
+        unit: {:native, :millisecond},
+        tags: [:normalized_path],
+        tag_values: &add_normalized_path/1
+      )
     ]
   end
 
@@ -62,5 +73,9 @@ defmodule TuneWeb.Telemetry do
       # This function must call :telemetry.execute/3 and a metric must be added above.
       {Tune.Spotify.Supervisor, :count_sessions, []}
     ]
+  end
+
+  defp add_normalized_path(metadata) do
+    Map.put(metadata, :normalized_path, URI.parse(metadata.path).path)
   end
 end
