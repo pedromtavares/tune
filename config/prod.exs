@@ -10,7 +10,9 @@ use Mix.Config
 # which you should run after static files are built and
 # before starting your production server.
 config :tune, TuneWeb.Endpoint,
-  url: [scheme: "https", host: "tune.fullyforged.com", port: 443],
+  load_from_system_env: true,
+  http: [port: {:system, "PORT"}],
+  url: [host: "nossamusica.net", port: 80],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Do not print debug messages in production

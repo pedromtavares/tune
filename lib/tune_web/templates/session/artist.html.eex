@@ -1,0 +1,29 @@
+<div class="card mb-3 border shadow-none">
+    <div class="px-3 py-3">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <%= img_tag artwork(@artist), alt: @artist.name, class: "artwork" %>
+            </div>
+            <div class="col ml-n2">
+                <h6 class="text-sm mb-0">
+                    <span><%= @artist.name %></span>
+                </h6>
+
+                <%= if assigns[:tracks] do %>
+                    <div class="avatar-group hover-avatar-ungroup mb-3">
+                        <%= for track <- @tracks[@artist.id] do %>
+                            <div class="avatar rounded-circle avatar-xs">
+                                <%= img_tag thumbnail(track) %>
+                            </div>
+                        <% end %>
+                    </div>
+                <% end %>
+            </div>
+            <%= if assigns[:tracks] do %>
+                <div class="col-auto actions">
+                    <%=length(@tracks[@artist.id]) %>
+                </div>
+            <% end %>
+        </div>
+    </div>
+</div>

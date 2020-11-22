@@ -109,7 +109,7 @@ defmodule Tune.Spotify.Session.HTTP do
   @default_timeouts %{
     refresh: 1000,
     retry: 5000,
-    inactivity: 30_000
+    inactivity: 300_000
   }
 
   defstruct session_id: nil,
@@ -203,6 +203,14 @@ defmodule Tune.Spotify.Session.HTTP do
     GenStateMachine.call(via(session_id), :prev)
   end
 
+  def create_playlist(session_id, name, description, tracks) do
+    GenStateMachine.call(via(session_id), {:create_playlist, name, description, tracks})
+  end
+
+  def audio_features(session_id, tracks) do
+    GenStateMachine.call(via(session_id), {:audio_features, tracks})
+  end
+
   @impl true
   def recently_played_tracks(session_id, opts) do
     GenStateMachine.call(via(session_id), {:recently_played_tracks, opts})
@@ -221,6 +229,10 @@ defmodule Tune.Spotify.Session.HTTP do
   @impl true
   def top_tracks(session_id, opts) do
     GenStateMachine.call(via(session_id), {:top_tracks, opts})
+  end
+
+  def top_artists(session_id, opts) do
+    GenStateMachine.call(via(session_id), {:top_artists, opts})
   end
 
   @impl true
@@ -263,9 +275,12 @@ defmodule Tune.Spotify.Session.HTTP do
     GenStateMachine.call(via(session_id), :refresh_devices)
   end
 
-  @impl true
-  def get_recommendations_from_artists(session_id, artist_ids) do
-    GenStateMachine.call(via(session_id), {:get_recommendations_from_artists, artist_ids})
+  def get_popular_tracks(session_id, artist_id) do
+    GenStateMachine.call(via(session_id), {:get_popular_tracks, artist_id})
+  end
+
+  def get_recommendations_from_artists(session_id, artist_ids, limit) do
+    GenStateMachine.call(via(session_id), {:get_recommendations_from_artists, artist_ids, limit})
   end
 
   @impl true
@@ -519,6 +534,34 @@ defmodule Tune.Spotify.Session.HTTP do
     end
   end
 
+  defp handle_authenticated_call(from, {:create_playlist, name, description, tracks}, data) do
+    case spotify_client().create_playlist(
+           data.credentials.token,
+           data.session_id,
+           name,
+           description,
+           tracks
+         ) do
+      {:ok, playlist} ->
+        action = {:reply, from, {:ok, playlist}}
+        {:keep_state_and_data, action}
+
+      error ->
+        handle_common_errors(error, data, from)
+    end
+  end
+
+  defp handle_authenticated_call(from, {:audio_features, tracks}, data) do
+    case spotify_client().audio_features(data.credentials.token, tracks) do
+      {:ok, tracks} ->
+        action = {:reply, from, {:ok, tracks}}
+        {:keep_state_and_data, action}
+
+      error ->
+        handle_common_errors(error, data, from)
+    end
+  end
+
   defp handle_authenticated_call(from, {:recently_played_tracks, opts}, data) do
     case spotify_client().recently_played_tracks(data.credentials.token, opts) do
       {:ok, tracks} ->
@@ -534,6 +577,17 @@ defmodule Tune.Spotify.Session.HTTP do
     case spotify_client().top_tracks(data.credentials.token, opts) do
       {:ok, tracks} ->
         action = {:reply, from, {:ok, tracks}}
+        {:keep_state_and_data, action}
+
+      error ->
+        handle_common_errors(error, data, from)
+    end
+  end
+
+  defp handle_authenticated_call(from, {:top_artists, opts}, data) do
+    case spotify_client().top_artists(data.credentials.token, opts) do
+      {:ok, artists} ->
+        action = {:reply, from, {:ok, artists}}
         {:keep_state_and_data, action}
 
       error ->
@@ -710,8 +764,25 @@ defmodule Tune.Spotify.Session.HTTP do
     {:keep_state_and_data, actions}
   end
 
-  defp handle_authenticated_call(from, {:get_recommendations_from_artists, artist_ids}, data) do
-    case spotify_client().get_recommendations_from_artists(data.credentials.token, artist_ids) do
+  defp handle_authenticated_call(from, {:get_popular_tracks, artist_id}, data) do
+    case spotify_client().get_popular_tracks(
+           data.credentials.token,
+           artist_id
+         ) do
+      {:ok, tracks} ->
+        actions = [
+          {:reply, from, {:ok, tracks}}
+        ]
+
+        {:keep_state_and_data, actions}
+
+      error ->
+        handle_common_errors(error, data, from)
+    end
+  end
+
+  defp handle_authenticated_call(from, {:get_recommendations_from_artists, artist_ids, limit}, data) do
+    case spotify_client().get_recommendations_from_artists(data.credentials.token, artist_ids, limit) do
       {:ok, tracks} ->
         actions = [
           {:reply, from, {:ok, tracks}}

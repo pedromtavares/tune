@@ -5,12 +5,15 @@ defmodule Tune.Application do
 
   use Application
 
+  import Cachex.Spec, only: [expiration: 1]
+
   def start(_type, _args) do
     config = Vapor.load!(Tune.Config)
 
     Tune.Spotify.Auth.configure!(config.spotify)
 
     children = [
+      Tune.Repo,
       # Start the PubSub system
       {Phoenix.PubSub, name: Tune.PubSub},
       # Start the Endpoint (http/https)
@@ -18,6 +21,7 @@ defmodule Tune.Application do
       # Start a worker by calling: Tune.Worker.start_link(arg)
       {Finch, name: Tune.Finch},
       Tune.Spotify.Supervisor,
+      {Cachex, name: :session_cache, expiration: expiration(default: 600_000)},
       # Start the Telemetry supervisor
       TuneWeb.Telemetry,
       {TuneWeb.Telemetry.Storage, TuneWeb.Telemetry.metrics()}

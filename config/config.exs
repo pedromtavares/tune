@@ -16,6 +16,11 @@ config :tune, TuneWeb.Endpoint,
   live_view: [signing_salt: "Op07Dt9x"]
 
 config :tune,
+  ecto_repos: [Tune.Repo]
+
+config :tune, Tune.Repo, migration_primary_key: [name: :id, type: :binary_id]
+
+config :tune,
   spotify_session: Tune.Spotify.Session.HTTP,
   spotify_client: Tune.Spotify.Client.HTTP
 
@@ -37,6 +42,7 @@ spotify_scope =
     user-read-private
     user-read-recently-played
     user-top-read
+    playlist-modify-private
   )
   |> Enum.join(",")
 

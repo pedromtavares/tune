@@ -1,0 +1,123 @@
+<div class="card hover-shadow-lg">
+    <div class="card-header border-0">
+        <%=if @self do %>
+            <div class="d-flex justify-content-<%=if @show_actions, do: "between", else: "end" %> align-items-center">
+                <%=if @show_actions do %>
+                    <a href="javascript:;" class="btn btn-secondary btn-xs" data-link="https://nossamusica.net/<%=@session.id%>" data-text="Link copiado!" phx-hook="ShareLink" id="share-link">
+                        <i class="fa fa-share m-0"></i> <br/>Compartilhar</a>
+                    </a>
+                    <a href="javascript:;" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#qr-code">
+                        <i class="fa fa-qrcode m-0"></i> <br/>Ver QR Code</a>
+                    </a>
+                <% end %>
+                <%= link to: Routes.auth_path(@socket, :delete), method: :post, class: "btn btn-xs btn-secondary text-center" do %>
+                    <i class="fa fa-sign-out m-0"></i><br/>Sair</a>
+                <% end %>
+            </div>
+        <% end %>
+    </div>
+    <div class="card-body text-center">
+        <div class="avatar rounded-circle avatar-xl hover-translate-y-n3 user-avatar">
+            <%= img_tag user_avatar(@session.profile), alt: @session.profile.name %>
+        </div>
+        <h5 class="h6 my-4"><%=@session.profile.name%></h5>
+        <%=if length(@session.artists.long) > 0 do %>
+            <div class="avatar-group hover-avatar-ungroup mb-3">
+                <%= for artist <- Enum.take(@session.artists.long,5) do %>
+                    <div class="avatar rounded-circle avatar-lg">
+                        <%= img_tag artwork(artist), alt: artist.name %>
+                    </div>
+                <% end %>
+            </div>
+            <span class="clearfix"></span>
+            <small><%=Enum.take(@session.artists.long,5) |> Enum.map(& &1.name) |> Enum.join(", ") %></small>
+            <span class="clearfix"></span>
+            <button type="button" class="btn btn-slack btn-icon-label mt-3" data-toggle="modal" data-target="#session-<%=@session.id%>">
+                <span class="btn-inner--icon">
+                <i class="fa fa-music"></i>
+                </span>
+                <span class="btn-inner--text">Ranking Musical</span>
+            </button>
+        <% else %>
+            <a href="javascript:;" class="btn btn-success btn-xs disabled">
+                <i class="fa fa-spinner fa-spin mr-2"></i>Carregando dados musicais...
+            </a>
+        <% end %>
+    </div>
+</div>
+
+<div class="modal fade" id="session-<%=@session.id%>" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-center w-100 mb-0"><%=@session.profile.name %></h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body px-0 py-0 mb-3">
+                <div class="card card-fluid">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-center align-items-center">
+                            <a href="javascript:;" class="btn btn-success btn-sm active type-filter" data-type="artist" phx-hook="TypeFilter" id="artist-filter-<%=@session.id%>">
+                                <i class="fa fa-users mr-2"></i>Artistas
+                            </a>
+                            <a href="javascript:;" class="btn btn-success btn-sm type-filter" data-type="track" phx-hook="TypeFilter" id="track-filter-<%=@session.id%>">
+                                <i class="fa fa-music mr-2"></i>Músicas
+                            </a>
+
+                        </div>
+                    </div>
+                    <div class="card-header px-2 border-bottom-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="javascript:;" class="btn btn-secondary btn-xs active time-filter" data-time="short" phx-hook="TimeFilter" id="short-filter-<%=@session.id%>">
+                                Último mês
+                            </a>
+                            <a href="javascript:;" class="btn btn-secondary btn-xs time-filter" data-time="medium" phx-hook="TimeFilter" id="medium-filter-<%=@session.id%>">
+                                Últimos 6 meses
+                            </a>
+                            <a href="javascript:;" class="btn btn-secondary btn-xs time-filter" data-time="long" phx-hook="TimeFilter" id="long-filter-<%=@session.id%>">
+                                Sempre
+                            </a>
+                        </div>
+                    </div>
+                    <%= for {key, collection} <- @session.artists do %>
+                        <div class="list-group list-group-flush artist-list type-list <%=unless key == :short, do: "d-none"%> artist-<%=key%>">
+                            <%= for {artist, index} <- Enum.take(collection, 10) |> Enum.with_index(1) do %>
+                                <div class="list-group-item list-group-item-action">
+                                    <div class="d-flex align-items-center">
+                                        <div>
+                                            <%= img_tag artwork(artist), alt: artist.name, class: "artwork rounded-circle" %>
+                                        </div>
+                                        <div class="flex-fill ml-3">
+                                            <div class="h6 text-sm mb-0"><%=artist.name %> <strong class="float-right h4 text-success">#<%=index%></strong></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% end %>
+                        </div>
+                    <% end %>
+                    <%= for {key, collection} <- @session.tracks do %>
+                        <div class="list-group list-group-flush track-list d-none type-list track-<%=key%>">
+                            <%= for {track, index} <- Enum.take(collection, 10) |> Enum.with_index(1) do %>
+                                <div class="list-group-item list-group-item-action">
+                                    <div class="d-flex align-items-center">
+                                        <div>
+                                            <%= img_tag thumbnail(track), alt: name(track), class: "artwork rounded-circle" %>
+                                        </div>
+                                        <div class="flex-fill ml-3">
+                                            <div class="h6 text-sm mb-0"><%=name(track) %> <strong class="float-right h4 text-success">#<%=index%></strong></div>
+                                            <p class="text-sm lh-140 mb-0">
+                                                <%= authors(track)%>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% end %>
+                        </div>
+                    <% end %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

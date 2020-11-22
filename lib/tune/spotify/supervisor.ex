@@ -31,6 +31,22 @@ defmodule Tune.Spotify.Supervisor do
     )
   end
 
+  def get_session(_, debug \\ nil)
+
+  def get_session(id, nil) do
+    Supervisor.which_children(Tune.Spotify.SessionSupervisor)
+    |> Enum.map(fn {_, pid, _, _} ->
+      {_, state} = :sys.get_state(pid)
+      state
+    end)
+    |> Enum.filter(fn state ->
+      Map.get(state, :session_id) == id
+    end)
+    |> List.first()
+  end
+
+  def get_session(_, _), do: true
+
   def count_sessions do
     count = DynamicSupervisor.count_children(Tune.Spotify.SessionSupervisor)
     :telemetry.execute([:tune, :session, :count], count)

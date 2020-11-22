@@ -25,6 +25,12 @@ defmodule TuneWeb.Router do
     plug :ensure_authenticated
   end
 
+  scope "/", TuneWeb do
+    pipe_through :browser
+
+    get "/", AuthController, :new
+  end
+
   scope "/auth", TuneWeb do
     pipe_through :browser
 
@@ -39,18 +45,15 @@ defmodule TuneWeb.Router do
   scope "/", TuneWeb do
     pipe_through [:browser, :authenticated]
 
-    live "/", ExplorerLive, :suggestions
+    # live "/", ExplorerLive, :suggestions
     live "/search", ExplorerLive, :search
     live "/artists/:artist_id", ExplorerLive, :artist_details
     live "/albums/:album_id", ExplorerLive, :album_details
     live "/shows/:show_id", ExplorerLive, :show_details
     live "/episodes/:episode_id", ExplorerLive, :episode_details
-  end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", TuneWeb do
-  #   pipe_through :api
-  # end
+    live "/sessions/:session_id", SessionLive
+  end
 
   import Phoenix.LiveDashboard.Router
 

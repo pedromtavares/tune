@@ -1,6 +1,14 @@
 defmodule TuneWeb do
   @moduledoc false
 
+  def subscribe(channel) do
+    Phoenix.PubSub.subscribe(Tune.PubSub, channel)
+  end
+
+  def broadcast(channel, event, payload) do
+    Phoenix.PubSub.broadcast(Tune.PubSub, channel, {event, payload})
+  end
+
   def controller do
     quote do
       use Phoenix.Controller, namespace: TuneWeb

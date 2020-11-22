@@ -1,19 +1,211 @@
 /* This file is for your main application css. */
-@import "./milligram.css";
+@import "./purpose.css";
+// @import "./milligram.css";
 @import "./nprogress";
-@import "./colors";
-@import "./general";
-@import "./phoenix";
-@import "./icons";
-@import "./header";
-@import "./main";
-@import "./item";
-@import "./artwork";
-@import "./tracklist";
-@import "./episode-list";
-@import "./results";
-@import "./suggestions";
-@import "./mini_player";
-@import "./pagination";
-@import "./modal";
-@import "./help";
+// @import "./colors";
+// @import "./general";
+// @import "./phoenix";
+// @import "./icons";
+// @import "./header";
+// @import "./main";
+// @import "./item";
+// @import "./artwork";
+// @import "./tracklist";
+// @import "./episode-list";
+// @import "./results";
+// @import "./suggestions";
+// @import "./mini_player";
+// @import "./pagination";
+// @import "./modal";
+// @import "./help";
+
+.user-avatar{
+  img{
+    height: 100px;
+    width: 100px;
+    object-fit: cover;
+  }
+  
+}
+
+.artwork{
+  max-width: 50px
+}
+
+.artists, .tracks, .match{
+  .card-wrapper{
+    height: 340px;
+    overflow: auto;
+  }
+}
+
+.type-list{
+  height: 350px;
+  overflow: auto;
+}
+
+.container-application:before {
+  // height: 80px !important;
+  // border-bottom-right-radius: 2.5rem !important;
+  // background-color: rgb(0, 22, 74) !important;
+  background: none !important;
+}
+.logos{
+  margin-top: 10px;
+}
+.code-wrapper{
+  width: auto !important;
+  height: auto !important;
+}
+
+.help-block{
+  color: #fc2e00;
+}
+
+.timeline:before{
+  border-right: 2px solid #d5ddea;
+}
+
+.timeline-step{
+  border: 2px solid #d5ddea;
+}
+
+.badge a{
+  color: inherit;
+}
+
+button.icon i{
+  margin-right: 5px;
+}
+
+.edit-form{
+  h5{
+    font-size: 1.2rem;
+  }
+}
+
+.list-group{
+  .avatar{
+    height: 2.125rem;
+    width: 2.125rem;
+  }
+}
+
+#ranking{
+  .modal-body{
+    padding: 0;
+  }
+}
+
+
+.user-profile{
+  i{
+    margin-right: 10px;
+  }
+  .btn{
+    color: white;
+  }
+  .card-header{
+    text-overflow: clip;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+}
+
+.truncate{
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 60%;
+}
+
+.timeline-block{
+  margin-bottom: 3em;
+}
+
+.timeline-content{
+  margin-right: 0;
+}
+
+.connection{
+  .badge{
+    margin-right: 5px;
+  }
+  .badge-pill{
+    padding-right: .5rem;
+  }
+}
+
+
+.modal-header {
+  .close{
+    margin-left: 0;
+  }
+}
+
+.top-bar{
+  height: 80px;
+  border-bottom-left-radius: 2.5rem;
+  border-bottom-right-radius: 2.5rem;
+  // background-color: #6e00ff;//rgb(0, 22, 74);
+  width:100%;
+  display: flex;
+
+  img{
+    height: 50px;
+    margin-top: 15px;
+  }
+}
+
+.home-bar{
+  height: 80px;
+  border-top-left-radius: 2.5rem;
+  border-top-right-radius: 2.5rem;
+  background-color: rgb(0, 22, 74);
+  width:100%;
+  margin-top: 30px;
+  margin-bottom: 100px;
+  display: flex;
+
+  .btn{
+    background: white;
+    color: rgb(0, 22, 74);
+    height: 50px;
+    margin-top: 15px;
+    border-color: rgb(0, 22, 74);
+  }
+}
+
+.btn-link{
+  border-color: #001c5e;
+  background: #001c5e;
+  color: white;
+}
+
+.text-link{
+  color: #001c5e;
+}
+
+.badge-link{
+  border-color: rgb(0, 22, 74);
+  background: rgb(0, 22, 74);
+  color: white;
+}
+
+.badge-logo{
+  border-color: rgb(127, 169, 238);
+  background: rgb(127, 169, 238);
+  color: white;
+}
+
+.phx-disconnected::before{
+  background-color: unset;
+}
+
+.phx-disconnected::after {
+  top: 11%;
+}
+
+.phx-error {
+  background: white!important;
+}

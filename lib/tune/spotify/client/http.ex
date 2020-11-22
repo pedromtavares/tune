@@ -257,6 +257,36 @@ defmodule Tune.Spotify.Client.HTTP do
   ################################### CONTENT ####################################
   ################################################################################
 
+  def create_playlist(token, session_id, name, description, tracks) do
+    payload = %{
+      name: name,
+      description: description,
+      public: false
+    }
+
+    uris = Enum.map(tracks, & &1.uri) |> Enum.join(",")
+
+    case json_post(@base_url <> "/users/#{session_id}/playlists", payload, auth_headers(token)) do
+      {:ok, %{status: 201} = response} ->
+        playlist =
+          response.body
+          |> Jason.decode!()
+          |> parse_playlist()
+
+        case json_post(
+               @base_url <> "/playlists/#{playlist.id}/tracks?uris=#{uris}",
+               %{},
+               auth_headers(token)
+             ) do
+          {:ok, %{status: 201}} -> {:ok, playlist}
+          other_response -> handle_errors(other_response)
+        end
+
+      other_response ->
+        handle_errors(other_response)
+    end
+  end
+
   @impl true
   def get_album(token, album_id) do
     params = %{
@@ -374,10 +404,65 @@ defmodule Tune.Spotify.Client.HTTP do
     end
   end
 
-  @impl true
-  def get_recommendations_from_artists(token, artist_ids) do
+  def audio_features(token, tracks) do
+    params = %{
+      ids: Enum.map(tracks, & &1.id) |> Enum.join(",")
+    }
+
+    case json_get(
+           @base_url <> "/audio-features" <> "?" <> URI.encode_query(params),
+           auth_headers(token)
+         ) do
+      {:ok, %{status: 200} = response} ->
+        features =
+          response.body
+          |> Jason.decode!()
+          |> Map.get("audio_features")
+
+        tracks_with_features =
+          Enum.map(tracks, fn track ->
+            feature =
+              Enum.find(features, fn feature ->
+                feature["id"] == track.id
+              end)
+
+            Map.put(track, :audio_features, feature)
+          end)
+
+        {:ok, tracks_with_features}
+
+      other_response ->
+        handle_errors(other_response)
+    end
+  end
+
+  def get_popular_tracks(token, artist_id) do
+    params = %{
+      market: "from_token"
+    }
+
+    case json_get(
+           @base_url <> "/artists/#{artist_id}/top-tracks?#{URI.encode_query(params)}",
+           auth_headers(token)
+         ) do
+      {:ok, %{status: 200} = response} ->
+        tracks =
+          response.body
+          |> Jason.decode!()
+          |> Map.get("tracks")
+          |> Enum.map(&parse_track/1)
+
+        {:ok, tracks}
+
+      other_response ->
+        handle_errors(other_response)
+    end
+  end
+
+  def get_recommendations_from_artists(token, artist_ids, limit) do
     params = %{
       seed_artists: Enum.join(artist_ids, ","),
+      limit: limit,
       market: "from_token"
     }
 
@@ -517,6 +602,35 @@ defmodule Tune.Spotify.Client.HTTP do
     end
   end
 
+  def top_artists(token, opts) do
+    limit = Keyword.get(opts, :limit, @default_limit)
+    offset = Keyword.get(opts, :offset, @default_offset)
+    time_range = Keyword.get(opts, :time_range, @default_time_range)
+
+    params = %{
+      limit: limit,
+      offset: offset,
+      time_range: time_range
+    }
+
+    case json_get(
+           @base_url <> "/me/top/artists?" <> URI.encode_query(params),
+           auth_headers(token)
+         ) do
+      {:ok, %{status: 200} = response} ->
+        results =
+          response.body
+          |> Jason.decode!()
+          |> Map.get("items")
+          |> Enum.map(&parse_artist/1)
+
+        {:ok, results}
+
+      other_response ->
+        handle_errors(other_response)
+    end
+  end
+
   defp auth_headers(token) do
     [{"Authorization", "Bearer #{token}"}]
   end
@@ -527,6 +641,10 @@ defmodule Tune.Spotify.Client.HTTP do
 
   defp json_put(url, params, headers) do
     put(url, Jason.encode!(params), @json_headers ++ headers)
+  end
+
+  defp json_post(url, params, headers) do
+    post(url, Jason.encode!(params), @json_headers ++ headers)
   end
 
   defp form_post(url, params, headers) do
@@ -552,7 +670,8 @@ defmodule Tune.Spotify.Client.HTTP do
     %User{
       name: Map.get(data, "display_name"),
       avatar_url: get_in(data, ["images", Access.at(0), "url"]),
-      product: Map.get(data, "product")
+      product: Map.get(data, "product"),
+      id: Map.get(data, "id")
     }
   end
 
@@ -663,7 +782,7 @@ defmodule Tune.Spotify.Client.HTTP do
     end
   end
 
-  defp parse_track(item) do
+  def parse_track(item) do
     %Track{
       id: Map.get(item, "id"),
       uri: Map.get(item, "uri"),
@@ -671,6 +790,27 @@ defmodule Tune.Spotify.Client.HTTP do
       duration_ms: Map.get(item, "duration_ms"),
       track_number: Map.get(item, "track_number"),
       disc_number: Map.get(item, "disc_number"),
+      audio_features: %{},
+      artists:
+        item
+        |> Map.get("artists")
+        |> Enum.map(&parse_artist/1),
+      album:
+        item
+        |> Map.get("album")
+        |> parse_album()
+    }
+  end
+
+  def parse_features(item) do
+    %Track{
+      id: Map.get(item, "id"),
+      uri: Map.get(item, "uri"),
+      name: Map.get(item, "name"),
+      duration_ms: Map.get(item, "duration_ms"),
+      track_number: Map.get(item, "track_number"),
+      disc_number: Map.get(item, "disc_number"),
+      audio_features: %{},
       artists:
         item
         |> Map.get("artists")
@@ -690,6 +830,7 @@ defmodule Tune.Spotify.Client.HTTP do
       duration_ms: Map.get(item, "duration_ms"),
       track_number: Map.get(item, "track_number"),
       disc_number: Map.get(item, "disc_number"),
+      audio_features: %{},
       artists: :not_fetched,
       album: :not_fetched
     }
@@ -700,6 +841,7 @@ defmodule Tune.Spotify.Client.HTTP do
       id: Map.get(item, "id"),
       uri: Map.get(item, "uri"),
       name: Map.get(item, "name"),
+      genres: Map.get(item, "genres"),
       albums: :not_fetched,
       total_albums: :not_fetched,
       thumbnails:

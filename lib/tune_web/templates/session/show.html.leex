@@ -1,0 +1,321 @@
+<%= if live_flash(@flash, :error) do %>
+    <p class="alert alert-danger text-center" role="alert"><%= live_flash(@flash, :error) %></p>
+<% end %>
+<%=if @is_current do %>
+    <div class="row mb-2">
+        <div class="col">
+            <div class="card-group">
+                <div class="card bg-gradient-primary px-4 py-3 border-0 mb-0" style="background: linear-gradient(-180deg,#36b37e,#36b3a4)!important;border-bottom-left-radius:0;border-bottom-right-radius:0">
+                    <div class="card-body text-center pb-0">
+                        <h5 class="h4 text-white">Bem-vindo(a) <%=first_name(@user.name)%>!</h5>
+                        <p class="mt-4 mb-0 text-white">
+                            Toque no botão abaixo para compartilhar seu perfil com seus amigos, ou peça para escanearem seu QR code.<br/>
+
+                            <input type="text" class="form-control my-3" readonly value="https://nossamusica.net/<%=@current_session_id%>"/>
+                            <a href="javascript:;" class="btn btn-secondary"  data-link="https://nossamusica.net/<%=@current_session_id%>" data-text="Link do perfil copiado!" phx-hook="ShareLink">
+                                <i class="fa fa-share"></i> Compartilhar Link
+                            </a>
+                        </p>
+                    </div>
+                </div>
+                <div class="card bg-gradient-dark border-0" style="background: linear-gradient(180deg,#36b3a4,#36b37e)!important;border-top-left-radius:0;border-top-right-radius:0">
+                    <div class="card-body text-center">
+                        <p class="text-white bg-white" style="width: 300px;margin:auto">
+                            <%=raw @qr_code %>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<% else %>
+    <div class="row">
+        <div class="col">
+            <div class="card hover-shadow-lg">
+                <div class="card-header border-0 pb-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                    </div>
+                </div>
+                <div class="card-body text-center">
+                    <div class="avatar-group hover-avatar-ungroup mb-3">
+                        <a href="#" class="avatar rounded-circle avatar-xl hover-translate-y-n3 user-avatar">
+                            <%= img_tag user_avatar(@current_session[:profile]), alt: @current_session[:profile].name %>
+                        </a>
+                        <a href="#" class="avatar rounded-circle avatar-xl hover-translate-y-n3 user-avatar">
+                            <%= img_tag user_avatar(@session[:profile]), alt: @session[:profile].name %>
+                        </a>
+                    </div>
+                    <h5 class="mb-3"><%=first_names(@current_session, @session)%></h5>
+                    <%=if @match.score && @match.score > 0 do %>
+                        <div class="row d-flex justify-content-center mb-3">
+                            <div class="col">
+                                <h6 class="text-muted mb-1">Sintonia</h6>
+                                <div class="row justify-content-center">
+                                    <div class="margin-auto">
+                                        <div class="progress-circle progress-sm text-success" id="progress-circle-1" data-progress="<%=@match.score%>" data-text="<%=score_label(@match.score)%>" data-color="success"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% end %>
+                    <div class="avatar-group hover-avatar-ungroup mb-3">
+                        <%= for artist <- Enum.take(@match[:artists],5) do %>
+                            <div class="avatar rounded-circle avatar-lg">
+                                <%= img_tag artwork(artist), alt: artist.name %>
+                            </div>
+                        <% end %>
+                    </div>
+
+                    <span class="clearfix"></span>
+                    <small><%=Enum.take(@match[:artists],5) |> Enum.map(& &1.name) |> Enum.join(", ") %></small>
+                </div>
+                <div class="card-footer text-center">
+                    <%=if @playlist do %>
+                        <iframe src="https://open.spotify.com/embed/playlist/<%=@playlist.id%>" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+                    <% else %>
+                        <div class="actions d-flex justify-content-center px-4">
+                            <%=if length(@current_session[:artists][:long]) > 0 && length(@session[:artists][:long]) > 0 do %>
+                                <%= if @creating do %>
+                                    <button type="button" class="btn btn-slack btn-icon-label disabled">
+                                        <span class="btn-inner--icon">
+                                        <i class="fa fa-spinner fa-spin"></i>
+                                        </span>
+                                        <span class="btn-inner--text">Criando...</span>
+                                    </button>
+                                <% else %>
+                                    <button type="button" class="btn btn-slack btn-icon-label" phx-click="playlist">
+                                        <span class="btn-inner--icon">
+                                        <i class="fab fa-spotify"></i>
+                                        </span>
+                                        <span class="btn-inner--text">Criar Playlist</span>
+                                    </button>
+                                <% end %>
+                            <% else %>
+                                <button type="button" class="btn btn-slack btn-icon-label disabled">
+                                    <span class="btn-inner--icon">
+                                    <i class="fa fa-spinner fa-spin"></i>
+                                    </span>
+                                    <span class="btn-inner--text">Sincronizando dados musicais...</span>
+                                </button>
+                            <% end %>
+                        </div>
+                    <% end %>
+
+                </div>
+            </div>
+        </div>
+    </div>
+<% end %>
+
+<div class="row">
+    <div class="col">
+        <%= render "session.html", session: @current_session, socket: @socket, self: true, show_actions: @current_session_id != @session.id %>
+    </div>
+    <%= unless @is_current do %>
+        <div class="col-12 col-md-6">
+            <%= render "session.html", session: @session, self: false %>
+        </div>
+    <% end %>
+</div>
+
+<div class="modal fade" id="qr-code" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="text-center w-100 mb-0"><%=@user.name %></h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="text-white bg-white" style="width: 300px;margin:auto">
+            <%=raw @qr_code %>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= if @debug do %>
+    <%= unless @is_current do %>
+        <div class="row">
+            <div class="col">
+                <div class="row final">
+                    <div class="col">
+                        <div class="card card-fluid">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-0">Final Playlist - <%=length(@match.chosen)%></h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-wrapper p-3">
+                                <div class="row">
+                                    <%= render_many @match.chosen, TuneWeb.SessionView, "track.html", as: :item%>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row match">
+                    <div class="col">
+                        <div class="card card-fluid">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-0">Matched Tracks - <%=length(@match.tracks)%></h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-wrapper p-3">
+                                <%= render_many @match.tracks, TuneWeb.SessionView, "track.html", as: :item%>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card card-fluid">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-0">Matched Artists - <%=length(@match.artists)%></h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-wrapper p-3">
+                                <%= render_many @match.artists, TuneWeb.SessionView, "artist.html", as: :artist, tracks: @match.by_artists%>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card card-fluid">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-0">Tracks from Matched Artists - <%=length(@match.from_artists)%></h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-wrapper p-3">
+                                <%= render_many @match.from_artists, TuneWeb.SessionView, "track.html", as: :item%>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% end %>
+
+
+    <div class="row artists">
+        <div class="col">
+            <div class="row">
+                <div class="col">
+                    <div class="card card-fluid">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">Top Artists - Short Term</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-wrapper p-3">
+                            <%= render_many @session[:artists][:short], TuneWeb.SessionView, "artist.html", as: :artist%>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card card-fluid">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">Top Artists - Medium Term</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-wrapper p-3">
+                            <%= render_many @session[:artists][:medium], TuneWeb.SessionView, "artist.html", as: :artist%>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card card-fluid">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">Top Artists - Long Term</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-wrapper p-3">
+                            <%= render_many @session[:artists][:long], TuneWeb.SessionView, "artist.html", as: :artist%>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row tracks">
+        <div class="col">
+            <div class="row">
+                <div class="col">
+                    <div class="card card-fluid">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">Recent Tracks</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-wrapper p-3">
+                            <%= render_many @session[:tracks][:recent], TuneWeb.SessionView, "track.html", as: :item%>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card card-fluid">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">Top Tracks - Short Term</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-wrapper p-3">
+                            <%= render_many @session[:tracks][:short], TuneWeb.SessionView, "track.html", as: :item%>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card card-fluid">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">Top Tracks - Medium Term</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-wrapper p-3">
+                            <%= render_many @session[:tracks][:medium], TuneWeb.SessionView, "track.html", as: :item%>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card card-fluid">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">Top Tracks - Long Term</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-wrapper p-3">
+                            <%= render_many @session[:tracks][:long], TuneWeb.SessionView, "track.html", as: :item%>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<% end %>

@@ -6,8 +6,28 @@ defmodule Tune.Spotify.Schema.Track do
   alias Tune.{Duration, Spotify.Schema}
   alias Schema.{Album, Artist}
 
-  @enforce_keys [:id, :uri, :name, :duration_ms, :track_number, :disc_number, :artists, :album]
-  defstruct [:id, :uri, :name, :duration_ms, :track_number, :disc_number, :artists, :album]
+  @enforce_keys [
+    :id,
+    :uri,
+    :name,
+    :duration_ms,
+    :track_number,
+    :disc_number,
+    :artists,
+    :album,
+    :audio_features
+  ]
+  defstruct [
+    :id,
+    :uri,
+    :name,
+    :duration_ms,
+    :track_number,
+    :disc_number,
+    :artists,
+    :album,
+    :audio_features
+  ]
 
   @type t :: %__MODULE__{
           id: Schema.id(),
@@ -17,7 +37,8 @@ defmodule Tune.Spotify.Schema.Track do
           track_number: pos_integer(),
           disc_number: pos_integer(),
           artists: [Artist.t()],
-          album: Album.t()
+          album: Album.t(),
+          audio_features: map()
         }
 
   @spec artist_ids([t()]) :: [Schema.id()]

@@ -1,17 +1,18 @@
-<header>
-  <nav id="navbar">
-    <div class="logo">
-      <%= render TuneWeb.HeaderView, "icon_logo.html" %>
-    </div>
-    <div class="links">
-      <%= link gettext("Credits"), to: "https://github.com/fully-forged/tune#credits", target: "_blank" %>
-      &nbsp;·&nbsp;
-      <%= link gettext("Source"), to: "https://github.com/fully-forged/tune", target: "_blank" %>
-    </div>
-  </nav>
-</header>
-<main role="main" class="logged-out">
-  <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
-  <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
-  <%= @inner_content %>
-</main>
+<div class="page-content mt-3">
+    <%= if get_flash(@conn, :error) do %>
+        <p class="alert alert-danger text-center" role="alert"><%= get_flash(@conn, :error) %></p>
+    <% end %>
+
+    <%= if get_flash(@conn, :info) do %>
+        <p class="alert alert-info text-center" role="alert"><%= get_flash(@conn, :info) %></p>
+    <% end %>
+
+    <%= @inner_content %>
+    <%=if assigns[:debug] do %>
+        <div class="card">
+            <%=for file <- files() do %>
+                <%= link file, to: "/sessions/#{file}?file=true", class: "ml-1 mr-1" %>
+            <% end %>
+        </div>
+    <% end %>
+</div>

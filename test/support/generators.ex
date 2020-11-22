@@ -76,7 +76,8 @@ defmodule Tune.Generators do
           track_number: track_number,
           disc_number: disc_number,
           album: album,
-          artists: artists
+          artists: artists,
+          audio_features: %{}
         })
       end)
     end)
@@ -164,7 +165,8 @@ defmodule Tune.Generators do
         track_number: track_number,
         disc_number: disc_number,
         album: :not_fetched,
-        artists: :not_fetched
+        artists: :not_fetched,
+        audio_features: %{}
       })
     end)
   end
@@ -305,14 +307,14 @@ defmodule Tune.Generators do
   def premium_profile do
     tuple({name(), image_url()})
     |> bind(fn {name, avatar_url} ->
-      constant(%User{name: name, avatar_url: avatar_url, product: "premium"})
+      constant(%User{name: name, avatar_url: avatar_url, product: "premium", id: "premium"})
     end)
   end
 
   def free_profile do
     tuple({name(), image_url()})
     |> bind(fn {name, avatar_url} ->
-      constant(%User{name: name, avatar_url: avatar_url, product: "free"})
+      constant(%User{name: name, avatar_url: avatar_url, product: "free", id: "free"})
     end)
   end
 

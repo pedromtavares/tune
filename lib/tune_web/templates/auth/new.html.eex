@@ -1,4 +1,33 @@
-<div class="full-screen-notice">
-  <%= content_tag :p, "The application requires you to Login into your Spotify account." %>
-  <%= link gettext("Login via Spotify"), to: Routes.auth_path(@conn, :request, :spotify) %>
+<div class="row">
+    <div class="col">
+        <div class="card-group">
+            <div class="card bg-gradient-primary px-4 py-5 border-0 mb-0" style="background: linear-gradient(-180deg,#36b37e,#000)!important;">
+                <div class="card-body text-center">
+                    <h5 class="h4 text-white">NossaMúsica.net</h5>
+                    <%= if @session do %>
+                            <div class="avatar rounded-circle avatar-xl hover-translate-y-n3 user-avatar">
+                                <%= img_tag @session.user.avatar_url, alt: @session.user.name %>
+                            </div>
+                    <% end %>
+                    <p class="mt-2 mb-0 text-white">
+                        <%= if @session do %>
+                            <strong><%=TuneWeb.SessionView.first_name(@session.user.name) %></strong> quer se sintonizar com você
+                        <% else %>
+                           Sintonizando personalidades através da música
+                        <% end %>
+                        <br/>
+
+                        Para começar, entre pela sua conta no Spotify
+                        <br/><br/>
+                        <%= link to: Routes.auth_path(@conn, :request, :spotify), class: "btn btn-slack btn-icon-label"  do %>
+                            <span class="btn-inner--icon">
+                            <i class="fab fa-spotify"></i>
+                            </span>
+                            <span class="btn-inner--text">Entrar pelo Spotify</span>
+                        <% end %>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

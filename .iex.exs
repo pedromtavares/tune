@@ -1,1 +1,1 @@
-Logger.configure(level: :warn)
+# Logger.configure(level: :warn)

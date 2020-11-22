@@ -39,3 +39,5 @@ npm-debug.log
 
 # ENV file
 .env.local
+
+sessions/

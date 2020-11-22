@@ -8,41 +8,44 @@ defmodule TuneWeb.AuthController do
 
   @spec callback(Plug.Conn.t(), any) :: Plug.Conn.t()
   def callback(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do
-    premium? = get_in(auth.extra.raw_info, [:user, "product"]) == "premium"
+    user_id = get_in(auth.extra.raw_info, [:user, "id"])
 
-    conn =
-      if premium? do
-        message = gettext("Hello %{name}!", %{name: auth.info.name})
-        put_flash(conn, :info, message)
+    target_session_id = get_session(conn, :target_session_id)
+
+    Tune.create_user(user_id, target_session_id)
+
+    session_id =
+      if target_session_id do
+        target_session_id
       else
-        message =
-          gettext(
-            """
-            Hello %{name}!
-            As you don't have a premium account, the embedded audio player and all audio controls are disabled.
-            """,
-            %{name: auth.info.name}
-          )
-
-        put_flash(conn, :warning, message)
+        user_id
       end
 
     conn
     |> put_session(:spotify_credentials, auth.credentials)
     |> put_session(:spotify_id, auth.info.nickname)
     |> configure_session(renew: true)
-    |> redirect(to: Routes.explorer_path(conn, :suggestions))
+    |> redirect(to: "/sessions/#{session_id}")
   end
 
   def callback(%{assigns: %{ueberauth_failure: _failure}} = conn, _params) do
     conn
-    |> put_flash(:error, gettext("Error authenticating via Spotify"))
+    |> put_flash(:error, "Erro de autenticação, por favor, tente novamente")
     |> configure_session(drop: true)
-    |> redirect(to: Routes.explorer_path(conn, :suggestions))
+    |> redirect(to: "/")
   end
 
   def new(conn, _params) do
-    render(conn, "new.html")
+    session_id = get_session(conn, :current_session_id)
+
+    if session_id do
+      redirect(conn, to: "/sessions/#{session_id}")
+    else
+      target_session =
+        get_session(conn, :target_session_id) |> Tune.Spotify.Supervisor.get_session()
+
+      render(conn, "new.html", session: target_session)
+    end
   end
 
   @spec delete(Plug.Conn.t(), any) :: Plug.Conn.t()
@@ -50,7 +53,7 @@ defmodule TuneWeb.AuthController do
     conn
     |> put_flash(:info, gettext("Logged out"))
     |> configure_session(drop: true)
-    |> redirect(to: Routes.explorer_path(conn, :suggestions))
+    |> redirect(to: "/")
   end
 
   @spec ensure_authenticated(Plug.Conn.t(), any) :: Plug.Conn.t()
@@ -62,20 +65,15 @@ defmodule TuneWeb.AuthController do
         conn
         |> assign(:status, :authenticated)
         |> assign(:user, user)
-        |> assign(:release_radar_playlist_id, get_release_radar_playlist_id())
         |> assign(:session_id, session_id)
+        |> put_session(:current_session_id, session_id)
 
       {:error, :not_authenticated} ->
         conn
         |> assign(:status, :not_authenticated)
-        |> Phoenix.Controller.redirect(to: Routes.auth_path(conn, :new))
+        |> put_session(:target_session_id, conn.path_params["session_id"])
+        |> Phoenix.Controller.redirect(to: "/")
         |> halt()
     end
-  end
-
-  defp get_release_radar_playlist_id do
-    Tune.Config
-    |> Vapor.load!()
-    |> get_in([:spotify, :release_radar_playlist_id])
   end
 end
