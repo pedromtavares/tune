@@ -15,7 +15,7 @@
                         <% else %>
                            Sintonizando personalidades através da música
                         <% end %>
-                        <br/>
+                        <br/><br/>
 
                         Para começar, entre pela sua conta no Spotify
                         <br/><br/>
