@@ -16,7 +16,6 @@ defmodule TuneWeb.AuthController do
 
     session_id =
       if target_session_id do
-        TuneWeb.broadcast("session-#{target_session_id}", "redirect", %{from: user_id})
         target_session_id
       else
         user_id
