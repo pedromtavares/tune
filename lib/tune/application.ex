@@ -21,7 +21,7 @@ defmodule Tune.Application do
       # Start a worker by calling: Tune.Worker.start_link(arg)
       {Finch, name: Tune.Finch},
       Tune.Spotify.Supervisor,
-      {Cachex, name: :session_cache, expiration: expiration(default: 600_000)},
+      {Cachex, name: :session_cache, expiration: expiration(default: 3_600_000)},
       # Start the Telemetry supervisor
       TuneWeb.Telemetry,
       {TuneWeb.Telemetry.Storage, TuneWeb.Telemetry.metrics()}
