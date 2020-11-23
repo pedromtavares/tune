@@ -72,6 +72,8 @@ defmodule TuneWeb.SessionLive do
   def handle_info(:create_playlist, %{assigns: assigns} = socket) do
     playlist = Matcher.create_playlist(assigns.current_session, assigns.session)
 
+    Task.start(fn -> Matcher.follow_good_vibes(assigns.current_session_id) end)
+
     Process.send_after(self(), {:redirect_to_playlist, playlist}, 1000)
 
     {:noreply, assign(socket, playlist: playlist)}

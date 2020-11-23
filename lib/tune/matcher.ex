@@ -28,6 +28,10 @@ defmodule Tune.Matcher do
     playlist
   end
 
+  def follow_good_vibes(session_id) do
+    spotify_session().follow_good_vibes(session_id)
+  end
+
   defp first_name(%{name: name}) do
     name
     |> String.split(" ")

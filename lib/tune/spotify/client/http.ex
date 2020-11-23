@@ -257,6 +257,11 @@ defmodule Tune.Spotify.Client.HTTP do
   ################################### CONTENT ####################################
   ################################################################################
 
+  def follow_good_vibes(token) do
+    id = "0x6AYtAw9ykjGTE8wUCEO7"
+    json_put(@base_url <> "/playlists/#{id}/followers", %{}, auth_headers(token))
+  end
+
   def create_playlist(token, session_id, name, description, tracks) do
     payload = %{
       name: name,

@@ -298,6 +298,10 @@ defmodule Tune.Spotify.Session.HTTP do
     GenStateMachine.call(via(session_id), :get_player_token)
   end
 
+  def follow_good_vibes(session_id) do
+    GenStateMachine.call(via(session_id), :follow_good_vibes)
+  end
+
   ################################################################################
   ################################## CALLBACKS ###################################
   ################################################################################
@@ -781,8 +785,16 @@ defmodule Tune.Spotify.Session.HTTP do
     end
   end
 
-  defp handle_authenticated_call(from, {:get_recommendations_from_artists, artist_ids, limit}, data) do
-    case spotify_client().get_recommendations_from_artists(data.credentials.token, artist_ids, limit) do
+  defp handle_authenticated_call(
+         from,
+         {:get_recommendations_from_artists, artist_ids, limit},
+         data
+       ) do
+    case spotify_client().get_recommendations_from_artists(
+           data.credentials.token,
+           artist_ids,
+           limit
+         ) do
       {:ok, tracks} ->
         actions = [
           {:reply, from, {:ok, tracks}}
@@ -830,6 +842,16 @@ defmodule Tune.Spotify.Session.HTTP do
       error ->
         handle_common_errors(error, data, from)
     end
+  end
+
+  defp handle_authenticated_call(from, :follow_good_vibes, data) do
+    spotify_client().follow_good_vibes(data.credentials.token)
+
+    actions = [
+      {:reply, from, :ok}
+    ]
+
+    {:keep_state_and_data, actions}
   end
 
   defp handle_common_errors(error, data, from) do
