@@ -1,7 +1,8 @@
 defmodule Tune.Sessions do
   def generate_code(session_id) do
-    base = "http://192.168.15.5:4000"
-    # base = "https://linkai.onrender.com"
+    # base = "http://192.168.15.5:4000"
+    base = "https://nossamusica.net"
+
     "#{base}/sessions/#{session_id}"
     |> EQRCode.encode()
     |> EQRCode.svg(width: 300)
