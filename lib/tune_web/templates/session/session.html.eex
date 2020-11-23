@@ -36,7 +36,7 @@
                 <span class="btn-inner--icon">
                 <i class="fa fa-music"></i>
                 </span>
-                <span class="btn-inner--text">Ranking Musical</span>
+                <span class="btn-inner--text">Histórico Musical</span>
             </button>
         <% else %>
             <a href="javascript:;" class="btn btn-success btn-xs disabled">
