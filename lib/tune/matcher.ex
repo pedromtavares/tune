@@ -9,10 +9,10 @@ defmodule Tune.Matcher do
     connection = Tune.connect_users(origin.id, target.id, matched, true)
     artists = matched[:artists] |> Enum.take(5) |> Enum.map(& &1.name)
     first_four = Enum.take(artists, 4)
-    artists_label = "#{Enum.join(first_four, ", ")} & #{List.last(artists)}"
+    artists_label = "#{Enum.join(first_four, ", ")} e #{List.last(artists)}"
     now = Date.utc_today()
     date = "#{now.day}/#{now.month}/#{now.year}"
-    name = "NossaMusica.net - #{first_name(origin.profile)} e #{first_name(target.profile)}"
+    name = "NossaMusica.net - #{first_name(origin.profile)} & #{first_name(target.profile)}"
 
     description =
       "Sintonia criada em #{date} com o melhor de #{artists_label}. ID ##{connection.id}"
