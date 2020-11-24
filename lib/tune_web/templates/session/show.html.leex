@@ -11,8 +11,8 @@
                         <p class="mt-4 mb-0 text-white">
                             Toque no botão abaixo para compartilhar seu perfil com seus amigos, ou peça para escanearem seu QR code.<br/>
 
-                            <input type="text" class="form-control my-3" readonly value="https://nossamusica.net/<%=@current_session_id%>"/>
-                            <a href="javascript:;" class="btn btn-secondary"  data-link="https://nossamusica.net/<%=@current_session_id%>" data-text="Link do perfil copiado!" phx-hook="ShareLink" id="session-share-link">
+                            <input type="text" class="form-control my-3" readonly value="https://nossamusica.net/sessions/<%=@current_session_id%>"/>
+                            <a href="javascript:;" class="btn btn-secondary"  data-link="https://nossamusica.net/sessions/<%=@current_session_id%>" data-text="Link do perfil copiado!" phx-hook="ShareLink" id="session-share-link">
                                 <i class="fa fa-share"></i> Compartilhar Link
                             </a>
                         </p>

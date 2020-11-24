@@ -3,7 +3,7 @@
         <%=if @self do %>
             <div class="d-flex justify-content-<%=if @show_actions, do: "between", else: "end" %> align-items-center">
                 <%=if @show_actions do %>
-                    <a href="javascript:;" class="btn btn-secondary btn-xs" data-link="https://nossamusica.net/<%=@session.id%>" data-text="Link copiado!" phx-hook="ShareLink" id="share-link">
+                    <a href="javascript:;" class="btn btn-secondary btn-xs" data-link="https://nossamusica.net/sessions/<%=@session.id%>" data-text="Link copiado!" phx-hook="ShareLink" id="share-link">
                         <i class="fa fa-share m-0"></i> <br/>Compartilhar</a>
                     </a>
                     <a href="javascript:;" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#qr-code">
