@@ -39,7 +39,7 @@ defmodule Tune do
         matched_tracks_count: length(match.tracks),
         created_playlist: created_playlist
       })
-      |> Repo.update!()
+      |> Repo.update()
     else
       Connection.changeset(%Connection{}, %{
         origin_id: origin.id,
@@ -48,7 +48,7 @@ defmodule Tune do
         matched_artists_count: length(match.artists),
         matched_tracks_count: length(match.tracks)
       })
-      |> Repo.insert!()
+      |> Repo.insert()
     end
   end
 end

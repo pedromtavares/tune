@@ -6,7 +6,13 @@ defmodule Tune.Matcher do
 
   def create_playlist(origin, target) do
     matched = match(origin, target)
-    connection = Tune.connect_users(origin.id, target.id, matched, true)
+
+    connection =
+      case Tune.connect_users(origin.id, target.id, matched, true) do
+        {:ok, connection} -> connection
+        _ -> %{id: origin.id}
+      end
+
     artists = matched[:artists] |> Enum.take(5) |> Enum.map(& &1.name)
     first_four = Enum.take(artists, 4)
     artists_label = "#{Enum.join(first_four, ", ")} e #{List.last(artists)}"
