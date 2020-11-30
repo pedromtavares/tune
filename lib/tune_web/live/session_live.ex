@@ -107,7 +107,7 @@ defmodule TuneWeb.SessionLive do
       match = Matcher.basic_match(assigns.current_session, session, assigns.debug)
       Tune.connect_users(assigns.current_session_id, session_id, match)
 
-      Process.send_after(self(), {:broadcast_to_connection, session_id}, 100)
+      Process.send_after(self(), {:broadcast_to_connection, session_id}, 2000)
 
       {:noreply,
        assign(socket,
