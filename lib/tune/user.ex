@@ -4,6 +4,7 @@ defmodule Tune.User do
   schema "users" do
     field(:spotify_id, :string)
     field(:last_online_at, :utc_datetime)
+    field(:auto_sync, :boolean, default: true)
 
     belongs_to(:inviter, Tune.User)
 
@@ -17,7 +18,8 @@ defmodule Tune.User do
     |> cast(attrs, [
       :spotify_id,
       :last_online_at,
-      :inviter_id
+      :inviter_id,
+      :auto_sync
     ])
   end
 end

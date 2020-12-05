@@ -8,7 +8,7 @@
                 <div class="card bg-gradient-primary px-4 py-3 border-0 mb-0" style="background: linear-gradient(-180deg,#36b37e,#36b3a4)!important;border-bottom-left-radius:0;border-bottom-right-radius:0">
                     <div class="card-body text-center pb-0">
                         <h5 class="h4 text-white">Bem-vindo(a) <%=first_name(@user.name)%>!</h5>
-                        <p class="mt-4 mb-0 text-white">
+                        <p class="mt-4 mb-4 text-white">
                             Toque no botão abaixo para compartilhar seu perfil com seus amigos, ou peça para escanearem seu QR code.<br/>
 
                             <input type="text" class="form-control my-3" readonly value="https://nossamusica.net/sessions/<%=@current_session_id%>"/>
@@ -16,6 +16,10 @@
                                 <i class="fa fa-share"></i> Compartilhar Link
                             </a>
                         </p>
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="customSwitch1" <%=if @current_user.auto_sync, do: "checked" %> phx-click="auto-sync">
+                            <label class="custom-control-label text-white" for="customSwitch1">Sintonizar playlist automaticamente</label>
+                        </div>
                     </div>
                 </div>
                 <div class="card bg-gradient-dark border-0" style="background: linear-gradient(180deg,#36b3a4,#36b37e)!important;border-top-left-radius:0;border-top-right-radius:0">
@@ -52,7 +56,7 @@
                                 <h6 class="text-muted mb-1">Sintonia</h6>
                                 <div class="row justify-content-center">
                                     <div class="margin-auto">
-                                        <div class="progress-circle progress-sm text-success" id="progress-circle-1" data-progress="<%=@match.score%>" data-text="<%=score_label(@match.score)%>" data-color="success"></div>
+                                        <div phx-hook="ProgressCircle" class="progress-circle progress-sm text-success" id="progress-circle-1" data-progress="<%=@match.score%>" data-text="<%=score_label(@match.score)%>" data-color="success"></div>
                                     </div>
                                 </div>
                             </div>
@@ -71,7 +75,23 @@
                 </div>
                 <div class="card-footer text-center">
                     <%=if @playlist do %>
-                        <iframe src="https://open.spotify.com/embed/playlist/<%=@playlist.id%>" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+                        <%= if @current_user.auto_sync do %>
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <a href=<%=@playlist.uri%> class="btn btn-slack btn-icon-label">
+                                        <span class="btn-inner--icon">
+                                        <i class="fab fa-spotify"></i>
+                                        </span>
+                                        <span class="btn-inner--text">Abrir no Spotify</span>
+                                    </a>
+                                </div>
+                            </div>
+                        <% end %>
+                        <div class="row">
+                            <div class="col">
+                                <iframe src="https://open.spotify.com/embed/playlist/<%=@playlist.id%>" width="100%" height="330" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+                            </div>
+                        </div>
                     <% else %>
                         <div class="actions d-flex justify-content-center px-4">
                             <%=if length(@current_session[:artists][:long]) > 0 && length(@session[:artists][:long]) > 0 do %>
@@ -80,14 +100,14 @@
                                         <span class="btn-inner--icon">
                                         <i class="fa fa-spinner fa-spin"></i>
                                         </span>
-                                        <span class="btn-inner--text">Criando...</span>
+                                        <span class="btn-inner--text">Sintonizando...</span>
                                     </button>
                                 <% else %>
                                     <button type="button" class="btn btn-slack btn-icon-label" phx-click="playlist">
                                         <span class="btn-inner--icon">
                                         <i class="fab fa-spotify"></i>
                                         </span>
-                                        <span class="btn-inner--text">Criar Playlist</span>
+                                        <span class="btn-inner--text">Sintonizar Playlist</span>
                                     </button>
                                 <% end %>
                             <% else %>
@@ -95,7 +115,7 @@
                                     <span class="btn-inner--icon">
                                     <i class="fa fa-spinner fa-spin"></i>
                                     </span>
-                                    <span class="btn-inner--text">Sincronizando dados musicais...</span>
+                                    <span class="btn-inner--text">Sintonizando...</span>
                                 </button>
                             <% end %>
                         </div>

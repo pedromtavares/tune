@@ -15,7 +15,7 @@ config :tune, Tune.Repo,
 # watchers to your application. For example, we use it
 # with webpack to recompile .js and .css sources.
 config :tune, TuneWeb.Endpoint,
-  http: [port: 4001],
+  http: [port: 4002],
   debug_errors: true,
   code_reloader: true,
   check_origin: false,

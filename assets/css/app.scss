@@ -19,6 +19,11 @@
 // @import "./modal";
 // @import "./help";
 
+.custom-control-input:checked~.custom-control-label:before {
+  border-color: #000;
+  background-color: #000;
+}
+
 .user-avatar{
   img{
     height: 100px;

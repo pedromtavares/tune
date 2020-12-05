@@ -13,15 +13,18 @@ defmodule TuneWeb.SessionLive do
 
         Process.send_after(self(), :build_current_session, 100)
 
+        current_user = Tune.get_user_by_spotify_id(session_id)
+
         {:ok,
          socket
          |> assign(
            current_session_id: session_id,
            user: user,
            current_session: Tune.Sessions.initial_session(user),
+           current_user: current_user,
            qr_code: Sessions.generate_code(session_id),
            playlist: nil,
-           creating: false,
+           creating: current_user.auto_sync,
            redirects: []
          )}
 
@@ -51,6 +54,11 @@ defmodule TuneWeb.SessionLive do
      )}
   end
 
+  def handle_event("auto-sync", params, socket) do
+    user = Tune.toggle_auto_sync(socket.assigns.current_session_id, params)
+    {:noreply, assign(socket, current_user: user)}
+  end
+
   def handle_event("playlist", _, socket) do
     origin = socket.assigns.current_session
     target = socket.assigns.session
@@ -74,7 +82,9 @@ defmodule TuneWeb.SessionLive do
 
     Task.start(fn -> Matcher.follow_good_vibes(assigns.current_session_id) end)
 
-    Process.send_after(self(), {:redirect_to_playlist, playlist}, 1000)
+    unless assigns.current_user.auto_sync do
+      Process.send_after(self(), {:redirect_to_playlist, playlist}, 1000)
+    end
 
     {:noreply, assign(socket, playlist: playlist)}
   end
@@ -109,10 +119,15 @@ defmodule TuneWeb.SessionLive do
 
       Process.send_after(self(), {:broadcast_to_connection, session_id}, 2000)
 
+      if assigns.current_user.auto_sync do
+        Process.send(self(), :create_playlist, [])
+      end
+
       {:noreply,
        assign(socket,
          session: session,
-         match: match
+         match: match,
+         creating: assigns.current_user.auto_sync
        )}
     else
       {:noreply,

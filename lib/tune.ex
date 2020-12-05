@@ -27,6 +27,13 @@ defmodule Tune do
     end
   end
 
+  def toggle_auto_sync(session_id, params) do
+    exists = get_user_by_spotify_id(session_id)
+
+    User.changeset(exists, %{auto_sync: Map.has_key?(params, "value")})
+    |> Repo.update!()
+  end
+
   def connect_users(origin_session_id, target_session_id, match, created_playlist \\ false) do
     origin = create_user(origin_session_id, nil)
     target = create_user(target_session_id, origin_session_id)

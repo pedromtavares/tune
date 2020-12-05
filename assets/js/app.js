@@ -77,6 +77,15 @@ Hooks.TimeFilter = {
   }
 }
 
+Hooks.ProgressCircle = {
+  mounted() {
+    setupProgressCircles(false)
+  },
+  updated() {
+    setupProgressCircles(true)
+  }
+}
+
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")
   .getAttribute("content");
@@ -88,7 +97,9 @@ let liveSocket = new LiveSocket("/live", Socket, {
 
 // Show progress bar on live navigation and form submits
 window.addEventListener("phx:page-loading-start", () => NProgress.start());
-window.addEventListener("phx:page-loading-stop", () => NProgress.done());
+window.addEventListener("phx:page-loading-stop", info => {
+  NProgress.done();
+});
 
 // connect if there are any LiveViews on the page
 liveSocket.connect();
@@ -102,13 +113,13 @@ window.liveSocket = liveSocket;
 
 window.$ = $;
 
-$(document).on('phx:update', event => {
-  var PurposeStyle = (function () {
+function setupProgressCircles(updating) {
+  let PurposeStyle = (function () {
 
     // Variables
 
-    var style = getComputedStyle(document.body);
-    var colors = {
+    let style = getComputedStyle(document.body);
+    let colors = {
       gray: {
         100: '#f6f9fc',
         200: '#e9ecef',
@@ -142,22 +153,22 @@ $(document).on('phx:update', event => {
     };
 
   })();
-  var ProgressCircle = (function () {
+  let ProgressCircle = (function () {
 
     // Variables
 
-    var $progress = $('.progress-circle');
+    let $progress = $('.progress-circle');
 
     // Methods
 
     function init($this) {
 
-      var value = $this.data().progress,
+      let value = $this.data().progress,
         text = $this.data().text ? $this.data().text : '',
         textClass = $this.data().textclass ? $this.data().textclass : 'progressbar-text',
         color = $this.data().color ? $this.data().color : 'primary';
 
-      var options = {
+      let options = {
         color: PurposeStyle.colors.theme[color],
         strokeWidth: 7,
         trailWidth: 2,
@@ -173,11 +184,15 @@ $(document).on('phx:update', event => {
         fill: 'rgba(54, 179, 126, 0.3)',
       };
 
-      var progress = new ProgressBar.Circle($this[0], options);
+      let progress = new ProgressBar.Circle($this[0], options);
 
-      progress.animate(value / 100);
+      if (updating) {
+        progress.set(value / 100);
+      } else {
+        progress.animate(value / 100);
+      }
+
     }
-
 
     // Events
 
@@ -188,6 +203,4 @@ $(document).on('phx:update', event => {
     }
 
   })();
-
-
-});
+}
