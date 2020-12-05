@@ -73,7 +73,7 @@ defmodule TuneWeb.SessionLive do
          :error,
          "Um dos participantes ficou offline, por favor, tente novamente."
        )
-       |> push_patch(to: "/sessions/#{socket.assigns.current_session_id}")}
+       |> push_patch(to: "/#{socket.assigns.current_session_id}")}
     end
   end
 
@@ -96,7 +96,7 @@ defmodule TuneWeb.SessionLive do
       {:noreply,
        socket
        |> assign(redirects: redirects)
-       |> push_patch(to: "/sessions/#{session_id}")}
+       |> push_patch(to: "/#{session_id}")}
     else
       {:noreply, socket}
     end
@@ -136,7 +136,7 @@ defmodule TuneWeb.SessionLive do
          :error,
          "O perfil que você tentou acessar não está disponível, por favor, tente novamente."
        )
-       |> push_patch(to: "/sessions/#{assigns.current_session_id}")}
+       |> push_patch(to: "/#{assigns.current_session_id}")}
     end
   end
 

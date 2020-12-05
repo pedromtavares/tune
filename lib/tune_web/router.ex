@@ -46,13 +46,14 @@ defmodule TuneWeb.Router do
     pipe_through [:browser, :authenticated]
 
     # live "/", ExplorerLive, :suggestions
-    live "/search", ExplorerLive, :search
-    live "/artists/:artist_id", ExplorerLive, :artist_details
-    live "/albums/:album_id", ExplorerLive, :album_details
-    live "/shows/:show_id", ExplorerLive, :show_details
-    live "/episodes/:episode_id", ExplorerLive, :episode_details
+    # live "/search", ExplorerLive, :search
+    # live "/artists/:artist_id", ExplorerLive, :artist_details
+    # live "/albums/:album_id", ExplorerLive, :album_details
+    # live "/shows/:show_id", ExplorerLive, :show_details
+    # live "/episodes/:episode_id", ExplorerLive, :episode_details
 
     live "/sessions/:session_id", SessionLive
+    live "/:session_id", SessionLive
   end
 
   import Phoenix.LiveDashboard.Router

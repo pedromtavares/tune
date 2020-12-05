@@ -25,7 +25,7 @@ defmodule TuneWeb.AuthController do
     |> put_session(:spotify_credentials, auth.credentials)
     |> put_session(:spotify_id, auth.info.nickname)
     |> configure_session(renew: true)
-    |> redirect(to: "/sessions/#{session_id}")
+    |> redirect(to: "/#{session_id}")
   end
 
   def callback(%{assigns: %{ueberauth_failure: _failure}} = conn, _params) do
@@ -39,7 +39,7 @@ defmodule TuneWeb.AuthController do
     session_id = get_session(conn, :current_session_id)
 
     if session_id do
-      redirect(conn, to: "/sessions/#{session_id}")
+      redirect(conn, to: "/#{session_id}")
     else
       target_session =
         get_session(conn, :target_session_id) |> Tune.Spotify.Supervisor.get_session()

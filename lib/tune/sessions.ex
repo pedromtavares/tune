@@ -3,7 +3,7 @@ defmodule Tune.Sessions do
     # base = "http://192.168.15.5:4000"
     base = "https://nossamusica.net"
 
-    "#{base}/sessions/#{session_id}"
+    "#{base}/#{session_id}"
     |> EQRCode.encode()
     |> EQRCode.svg(width: 300)
   end
