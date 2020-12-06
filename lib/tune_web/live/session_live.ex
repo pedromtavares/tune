@@ -126,12 +126,12 @@ defmodule TuneWeb.SessionLive do
 
       Process.send_after(self(), {:broadcast_to_connection, session_id}, 2000)
 
-      if assigns.current_user.auto_sync do
-        Process.send(self(), :create_playlist, [])
-      end
-
       playlists = Map.get(assigns.current_session, :playlists)
       playlist = playlists && Map.get(playlists, session_id)
+
+      if assigns.current_user.auto_sync && !playlist do
+        Process.send(self(), :create_playlist, [])
+      end
 
       {:noreply,
        assign(socket,
