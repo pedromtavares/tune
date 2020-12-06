@@ -8,17 +8,28 @@ defmodule Tune.Sessions do
     |> EQRCode.svg(width: 300)
   end
 
-  def get_cached_data(session_id, nil) do
+  def get_cached_data(session_id, debug) do
     case Cachex.get(:session_cache, session_id) do
-      {:ok, nil} -> put_cache_data(session_id)
+      {:ok, nil} -> put_cache_data(session_id, debug)
       {:ok, data} -> data
     end
   end
 
-  def get_cached_data(session_id, _), do: from_file(session_id)
+  def put_cache_playlist(origin_id, target_id, playlist, debug) do
+    session_data = get_cached_data(origin_id, debug)
+    playlists = Map.get(session_data, :playlists) || %{}
+    updated_playlists = Map.put(playlists, target_id, playlist)
+    new_session_data = Map.merge(session_data, %{playlists: updated_playlists})
+    Cachex.put(:session_cache, origin_id, new_session_data)
+  end
 
-  def put_cache_data(session_id) do
-    session = build_session(session_id)
+  def put_cache_data(session_id, debug) do
+    session =
+      if debug do
+        from_file(session_id)
+      else
+        build_session(session_id)
+      end
 
     if session do
       # File.write("sessions/#{session_id}", :erlang.term_to_binary(session), [:binary])
@@ -34,6 +45,7 @@ defmodule Tune.Sessions do
   def initial_session(%{id: session_id} = profile, nil) do
     %{
       profile: profile,
+      playlists: %{},
       id: session_id,
       tracks: %{
         recent: [],
@@ -56,6 +68,7 @@ defmodule Tune.Sessions do
         name: "Convidado"
       },
       id: session_id,
+      playlists: %{},
       tracks: %{
         recent: [],
         short: [],

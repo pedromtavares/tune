@@ -82,6 +82,13 @@ defmodule TuneWeb.SessionLive do
 
     Task.start(fn -> Matcher.follow_good_vibes(assigns.current_session_id) end)
 
+    Tune.Sessions.put_cache_playlist(
+      assigns.current_session_id,
+      assigns.session.id,
+      playlist,
+      assigns.debug
+    )
+
     unless assigns.current_user.auto_sync do
       Process.send_after(self(), {:redirect_to_playlist, playlist}, 1000)
     end
@@ -123,11 +130,15 @@ defmodule TuneWeb.SessionLive do
         Process.send(self(), :create_playlist, [])
       end
 
+      playlists = Map.get(assigns.current_session, :playlists)
+      playlist = playlists && Map.get(playlists, session_id)
+
       {:noreply,
        assign(socket,
          session: session,
          match: match,
-         creating: assigns.current_user.auto_sync
+         creating: assigns.current_user.auto_sync,
+         playlist: playlist
        )}
     else
       {:noreply,
