@@ -4,46 +4,6 @@ defmodule Tune.Matcher do
   @artist_score 5
   @track_score 2.5
 
-  def create_playlist(origin, target) do
-    matched = match(origin, target)
-
-    connection =
-      case Tune.connect_users(origin.id, target.id, matched, true) do
-        {:ok, connection} -> connection
-        _ -> %{id: origin.id}
-      end
-
-    artists = matched[:artists] |> Enum.take(5) |> Enum.map(& &1.name)
-    first_four = Enum.take(artists, 4)
-    artists_label = "#{Enum.join(first_four, ", ")} e #{List.last(artists)}"
-    now = Date.utc_today()
-    date = "#{now.day}/#{now.month}/#{now.year}"
-    name = "NossaMusica.net - #{first_name(origin.profile)} & #{first_name(target.profile)}"
-
-    description =
-      "Sintonia criada em #{date} com o melhor de #{artists_label}. ID ##{connection.id}"
-
-    {:ok, playlist} =
-      spotify_session().create_playlist(
-        origin.id,
-        name,
-        description,
-        matched[:chosen]
-      )
-
-    playlist
-  end
-
-  def follow_good_vibes(session_id) do
-    spotify_session().follow_good_vibes(session_id)
-  end
-
-  defp first_name(%{name: name}) do
-    name
-    |> String.split(" ")
-    |> List.first()
-  end
-
   def basic_match(%{id: id}, %{id: id2}, _) when id == id2, do: %{}
 
   def basic_match(
@@ -174,21 +134,21 @@ defmodule Tune.Matcher do
   defp recommended_tracks(session_id, artists, limit) when limit > 0 do
     artist_ids = artists |> Enum.take(5) |> Enum.map(& &1.id)
 
-    spotify_session().get_recommendations_from_artists(session_id, artist_ids, limit)
+    Tune.spotify_session().get_recommendations_from_artists(session_id, artist_ids, limit)
     |> elem(1)
   end
 
   defp recommended_tracks(_, _, _), do: []
 
   defp popular_tracks(session_id, artist_id) do
-    {:ok, tracks} = spotify_session().get_popular_tracks(session_id, artist_id)
+    {:ok, tracks} = Tune.spotify_session().get_popular_tracks(session_id, artist_id)
     IO.inspect(Enum.map(tracks, & &1.name) |> Enum.join(", "))
     tracks
   end
 
   defp tracks_with_audio_features(tracks, session_id)
        when length(tracks) > 0 and length(tracks) < 100 do
-    spotify_session().audio_features(session_id, tracks)
+    Tune.spotify_session().audio_features(session_id, tracks)
     |> elem(1)
   end
 
@@ -223,6 +183,4 @@ defmodule Tune.Matcher do
     result = round(length(tracks) * @track_score) + length(artists) * @artist_score
     if result > 100, do: 100, else: result
   end
-
-  defp spotify_session, do: Application.get_env(:tune, :spotify_session)
 end

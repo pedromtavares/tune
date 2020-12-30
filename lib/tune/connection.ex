@@ -21,7 +21,8 @@ defmodule Tune.Connection do
       :matched_tracks_count,
       :created_playlist,
       :origin_id,
-      :target_id
+      :target_id,
+      :updated_at
     ])
   end
 end

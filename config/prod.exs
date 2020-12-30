@@ -12,7 +12,7 @@ use Mix.Config
 config :tune, TuneWeb.Endpoint,
   load_from_system_env: true,
   http: [port: {:system, "PORT"}],
-  url: [host: "nossamusica.net", port: 80],
+  url: [host: "sinttonia.com", port: 80],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Do not print debug messages in production

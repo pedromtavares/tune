@@ -1,12 +1,5 @@
 defmodule Tune.Sessions do
-  def generate_code(session_id) do
-    # base = "http://192.168.15.5:4000"
-    base = "https://nossamusica.net"
-
-    "#{base}/#{session_id}"
-    |> EQRCode.encode()
-    |> EQRCode.svg(width: 300)
-  end
+  alias Tune.Spotify.Supervisor
 
   def get_cached_data(session_id, debug) do
     case Cachex.get(:session_cache, session_id) do
@@ -15,20 +8,12 @@ defmodule Tune.Sessions do
     end
   end
 
-  def put_cache_playlist(origin_id, target_id, playlist, debug) do
-    session_data = get_cached_data(origin_id, debug)
-    playlists = Map.get(session_data, :playlists) || %{}
-    updated_playlists = Map.put(playlists, target_id, playlist)
-    new_session_data = Map.merge(session_data, %{playlists: updated_playlists})
-    Cachex.put(:session_cache, origin_id, new_session_data)
-  end
-
   def put_cache_data(session_id, debug) do
     session =
       if debug do
         from_file(session_id)
       else
-        build_session(session_id)
+        Supervisor.get_session(session_id) && session_map(session_id)
       end
 
     if session do
@@ -40,53 +25,52 @@ defmodule Tune.Sessions do
     end
   end
 
-  def initial_session(_, debug \\ nil)
-
-  def initial_session(%{id: session_id} = profile, nil) do
-    %{
-      profile: profile,
-      playlists: %{},
-      id: session_id,
-      tracks: %{
-        recent: [],
-        short: [],
-        medium: [],
-        long: []
-      },
-      artists: %{
-        short: [],
-        medium: [],
-        long: []
-      }
-    }
+  def put_cache_playlist(origin_id, target_id, playlist, debug) do
+    session_data = get_cached_data(origin_id, debug)
+    playlists = Map.get(session_data, :playlists) || %{}
+    updated_playlists = Map.put(playlists, target_id, playlist)
+    new_session_data = Map.merge(session_data, %{playlists: updated_playlists})
+    Cachex.put(:session_cache, origin_id, new_session_data)
   end
 
+  def initial_session(_, debug \\ nil)
+
+  def initial_session(%{id: id} = profile, nil), do: empty_session(id, profile)
+
   def initial_session(session_id, nil) do
-    %{
-      profile: %{
-        avatar_url: "/images/user.png",
-        name: "Convidado"
-      },
-      id: session_id,
-      playlists: %{},
-      tracks: %{
-        recent: [],
-        short: [],
-        medium: [],
-        long: []
-      },
-      artists: %{
-        short: [],
-        medium: [],
-        long: []
-      }
-    }
+    empty_session(session_id, %{
+      avatar_url: "/images/user.png",
+      name: "Convidado"
+    })
   end
 
   def initial_session(session_id, _), do: from_file(session_id)
 
-  def build_session(session_id),
-    do: Tune.Spotify.Supervisor.get_session(session_id) && session_map(session_id)
+  defp empty_session(id, profile) do
+    %{
+      profile: profile,
+      id: id,
+      playlists: %{},
+      tracks: %{
+        recent: [],
+        short: [],
+        medium: [],
+        long: []
+      },
+      artists: %{
+        short: [],
+        medium: [],
+        long: []
+      }
+    }
+  end
+
+  defp from_file(session_id) do
+    {:ok, content} = File.read("sessions/#{session_id}")
+
+    content
+    |> :erlang.binary_to_term()
+  end
 
   defp session_map(session_id) do
     short_tracks_task = Task.async(fn -> get_top_tracks(session_id, "short_term") end)
@@ -94,9 +78,9 @@ defmodule Tune.Sessions do
     long_tracks_task = Task.async(fn -> get_top_tracks(session_id, "long_term") end)
 
     recent_tracks_task =
-      Task.async(fn -> spotify_session().recently_played_tracks(session_id, limit: 50) end)
+      Task.async(fn -> Tune.spotify_session().recently_played_tracks(session_id, limit: 50) end)
 
-    profile_task = Task.async(fn -> spotify_session().get_profile(session_id) end)
+    profile_task = Task.async(fn -> Tune.spotify_session().get_profile(session_id) end)
 
     short_artists_task = Task.async(fn -> get_top_artists(session_id, "short_term") end)
     medium_artists_task = Task.async(fn -> get_top_artists(session_id, "medium_term") end)
@@ -132,20 +116,11 @@ defmodule Tune.Sessions do
 
   defp get_top_tracks(session_id, time_range) do
     opts = [limit: 50, time_range: time_range]
-    spotify_session().top_tracks(session_id, opts)
+    Tune.spotify_session().top_tracks(session_id, opts)
   end
 
   defp get_top_artists(session_id, time_range) do
     opts = [limit: 50, time_range: time_range]
-    spotify_session().top_artists(session_id, opts)
+    Tune.spotify_session().top_artists(session_id, opts)
   end
-
-  defp from_file(session_id) do
-    {:ok, content} = File.read("sessions/#{session_id}")
-
-    content
-    |> :erlang.binary_to_term()
-  end
-
-  defp spotify_session, do: Application.get_env(:tune, :spotify_session)
 end

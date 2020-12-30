@@ -20,12 +20,13 @@ defmodule TuneWeb.SessionLive do
          |> assign(
            current_session_id: session_id,
            user: user,
-           current_session: Tune.Sessions.initial_session(user),
+           current_session: Sessions.initial_session(user),
            current_user: current_user,
-           qr_code: Sessions.generate_code(session_id),
+           qr_code: Tune.generate_qr_code(session_id),
            playlist: nil,
            creating: current_user.auto_sync,
-           redirects: []
+           redirects: [],
+           last_session_id: Tune.latest_session_id(current_user)
          )}
 
       _error ->
@@ -78,9 +79,9 @@ defmodule TuneWeb.SessionLive do
   end
 
   def handle_info(:create_playlist, %{assigns: assigns} = socket) do
-    playlist = Matcher.create_playlist(assigns.current_session, assigns.session)
+    playlist = Tune.create_playlist(assigns.current_session, assigns.session)
 
-    Task.start(fn -> Matcher.follow_good_vibes(assigns.current_session_id) end)
+    Task.start(fn -> Tune.follow_good_vibes(assigns.current_session_id) end)
 
     Tune.Sessions.put_cache_playlist(
       assigns.current_session_id,
@@ -138,7 +139,8 @@ defmodule TuneWeb.SessionLive do
          session: session,
          match: match,
          creating: assigns.current_user.auto_sync,
-         playlist: playlist
+         playlist: playlist,
+         last_session_id: session_id
        )}
     else
       {:noreply,

@@ -39,6 +39,7 @@ Hooks.ShareLink = {
       el.select();
       document.execCommand('copy');
       document.body.removeChild(el);
+      window.scrollTo(0, 0);
     });
 
   }

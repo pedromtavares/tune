@@ -6,7 +6,7 @@ defmodule TuneWeb.SessionView do
   @default_artwork "https://via.placeholder.com/300"
 
   alias Tune.Spotify.Schema
-  alias Schema.{Album, Artist, Episode, Show, Track}
+  alias Schema.{Artist, Track}
 
   def score_label(score) when score > 75, do: "FORTE"
   def score_label(score) when score > 50, do: "ALTA"
@@ -23,20 +23,6 @@ defmodule TuneWeb.SessionView do
     end)
     |> Enum.intersperse(", ")
   end
-
-  defp authors(%Album{artists: artists}, _socket) do
-    artists
-    |> Enum.map(fn artist ->
-      artist.name
-    end)
-    |> Enum.intersperse(", ")
-  end
-
-  defp authors(%Show{publisher: publisher}, _socket) do
-    publisher.name
-  end
-
-  defp authors(%Artist{}, _socket), do: nil
 
   defp artwork(%Artist{thumbnails: thumbnails}),
     do: Map.get(thumbnails, :medium, @default_artwork)

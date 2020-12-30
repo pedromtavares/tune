@@ -56,6 +56,7 @@ defmodule Tune.MixProject do
       {:poison, "~> 3.1"},
       {:eqrcode, "~> 0.1.7"},
       {:cachex, "~> 3.3"},
+      {:timex, "~> 3.5"},
       {:ex_doc, "~> 0.22", only: :dev, runtime: false},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:floki, ">= 0.0.0", only: :test},
