@@ -197,7 +197,7 @@
     <div class="container-fluid mb-2">
         <div class="row">
             <div class="col">
-                <button class="nav-box btn-white btn <%=if @show_share, do: "disabled"%>" type="button" phx-click="show-share" phx-hook="Loading">
+                <button class="nav-box btn-white btn <%=if @show_share, do: "disabled"%>" type="button" phx-click="show-share" phx-hook="Loading" id="share-button">
                     <span class="loading-text">
                         <i class="fa fa-qrcode fa-2x ml-2"></i><br/>Compartilhar
                     </span>
@@ -205,7 +205,7 @@
             </div>
             <%=if @last_session_id do %>
                 <div class="col">
-                    <button class="nav-box btn-white btn <%=if !@show_share && !@show_history, do: "disabled"%>" type="button" phx-click="show-sync" phx-hook="Loading">
+                    <button class="nav-box btn-white btn <%=if !@show_share && !@show_history, do: "disabled"%>" type="button" phx-click="show-sync" phx-hook="Loading" id="sync-button">
                         <span class="loading-text">
                             <i class="fa fa-user-friends fa-2x ml-2"></i><br/>Sinttonia
                         </span>
@@ -213,7 +213,7 @@
                 </div>
             <% end %>
             <div class="col">
-                <button class="nav-box btn-white btn <%=if @show_history, do: "disabled"%>" type="button" phx-click="show-history" phx-hook="Loading">
+                <button class="nav-box btn-white btn <%=if @show_history, do: "disabled"%>" type="button" phx-click="show-history" phx-hook="Loading" id="history-button">
                     <span class="loading-text">
                         <i class="fa fa-music fa-2x ml-1"></i><br/>Perfil
                     </span>
