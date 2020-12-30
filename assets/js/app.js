@@ -87,6 +87,35 @@ Hooks.ProgressCircle = {
   }
 }
 
+Hooks.Loading = {
+  mounted() {
+    let el = this.el;
+    let click = $(el).attr("phx-click");
+    let val = $(el).attr("phx-value-number");
+    let target = $(el).attr("phx-target");
+    let id = $(el).attr("phx-value-id");
+    let code = $(el).attr("phx-value-code");
+    let type = $(el).attr("phx-value-type");
+    let page = $(el).attr("phx-value-page");
+    let loading = $(el).attr("loading") || "Carregando..."
+    el.addEventListener("click", e => {
+      if (!$(el).hasClass("disabled")) {
+        $(el).find(".loading-text").html("<i class='fas fa-spinner fa-spin ml-1 fa-2x'></i><br/>" + loading);
+        if (click) {
+          let payload = { number: val, id: id, type: type, page: page, code: code }
+          if (target) {
+            this.pushEventTo(target, click, payload);
+          } else {
+            this.pushEvent(click, payload);
+          }
+          $(el).prop("disabled", true);
+          e.stopPropagation();
+        }
+      }
+    })
+  }
+}
+
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")
   .getAttribute("content");
