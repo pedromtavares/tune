@@ -45,8 +45,7 @@ defmodule TuneWeb.Router do
   scope "/", TuneWeb do
     pipe_through [:browser, :authenticated]
 
-    live "/:session_id/history", SessionLive, :history
-    live "/:session_id", SessionLive, :share
+    live "/:session_id", SessionLive
   end
 
   import Phoenix.LiveDashboard.Router

@@ -1,0 +1,73 @@
+<div class="container-fluid pb-5 mb-5 <%=unless @visible, do: "d-none"%>" style="background: linear-gradient(180deg,#36b3a4,#36b37e)!important;">
+    <div class="row text-center">
+        <div class="col">
+            <div class="avatar rounded-circle avatar-xl hover-translate-y-n3 user-avatar mt-2">
+                <%= img_tag user_avatar(@current_session.profile), alt: @current_session.profile.name %>
+            </div>
+        </div>
+    </div>
+    <h3 class="text-center w-100 mb-2 mt-2 text-white"><%=@current_session.profile.name %></h3>
+    <div class="px-0 py-0 modal-body">
+        <div class="card card-fluid">
+            <div class="card-header">
+                <div class="d-flex justify-content-center align-items-center">
+                    <a href="javascript:;" class="btn btn-success btn-sm active type-filter" data-type="artist" phx-hook="TypeFilter" id="artist-filter-<%=@current_session.id%>">
+                        <i class="fa fa-users mr-2"></i>Artistas
+                    </a>
+                    <a href="javascript:;" class="btn btn-success btn-sm type-filter" data-type="track" phx-hook="TypeFilter" id="track-filter-<%=@current_session.id%>">
+                        <i class="fa fa-music mr-2"></i>Músicas
+                    </a>
+
+                </div>
+            </div>
+            <div class="card-header px-2 border-bottom-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="javascript:;" class="btn btn-secondary btn-xs active time-filter" data-time="short" phx-hook="TimeFilter" id="short-filter-<%=@current_session.id%>">
+                        Último mês
+                    </a>
+                    <a href="javascript:;" class="btn btn-secondary btn-xs time-filter" data-time="medium" phx-hook="TimeFilter" id="medium-filter-<%=@current_session.id%>">
+                        Últimos 6 meses
+                    </a>
+                    <a href="javascript:;" class="btn btn-secondary btn-xs time-filter" data-time="long" phx-hook="TimeFilter" id="long-filter-<%=@current_session.id%>">
+                        Sempre
+                    </a>
+                </div>
+            </div>
+            <%= for {key, collection} <- @current_session.artists do %>
+                <div class="list-group list-group-flush artist-list type-list <%=unless key == :short, do: "d-none"%> artist-<%=key%>">
+                    <%= for {artist, index} <- Enum.take(collection, 10) |> Enum.with_index(1) do %>
+                        <div class="list-group-item list-group-item-action">
+                            <div class="d-flex align-items-center">
+                                <div>
+                                    <%= img_tag artwork(artist), alt: artist.name, class: "artwork rounded-circle" %>
+                                </div>
+                                <div class="flex-fill ml-3">
+                                    <div class="h6 text-sm mb-0"><%=artist.name %> <strong class="float-right h4 text-success">#<%=index%></strong></div>
+                                </div>
+                            </div>
+                        </div>
+                    <% end %>
+                </div>
+            <% end %>
+            <%= for {key, collection} <- @current_session.tracks do %>
+                <div class="list-group list-group-flush track-list d-none type-list track-<%=key%>">
+                    <%= for {track, index} <- Enum.take(collection, 10) |> Enum.with_index(1) do %>
+                        <div class="list-group-item list-group-item-action">
+                            <div class="d-flex align-items-center">
+                                <div>
+                                    <%= img_tag thumbnail(track), alt: name(track), class: "artwork rounded-circle" %>
+                                </div>
+                                <div class="flex-fill ml-3">
+                                    <div class="h6 text-sm mb-0"><%=name(track) %> <strong class="float-right h4 text-success">#<%=index%></strong></div>
+                                    <p class="text-sm lh-140 mb-0">
+                                        <%= authors(track)%>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    <% end %>
+                </div>
+            <% end %>
+        </div>
+    </div>
+</div>

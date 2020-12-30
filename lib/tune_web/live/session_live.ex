@@ -44,6 +44,8 @@ defmodule TuneWeb.SessionLive do
        session: Sessions.initial_session(session_id, params["debug"]),
        debug: params["debug"],
        is_current: is_current,
+       show_share: is_current,
+       show_history: false,
        match: %{
          tracks: [],
          chosen: [],
@@ -58,6 +60,18 @@ defmodule TuneWeb.SessionLive do
   def handle_event("auto-sync", params, socket) do
     user = Tune.toggle_auto_sync(socket.assigns.current_session_id, params)
     {:noreply, assign(socket, current_user: user)}
+  end
+
+  def handle_event("show-history", _, socket) do
+    {:noreply, assign(socket, show_history: true, show_share: false)}
+  end
+
+  def handle_event("show-share", _, socket) do
+    {:noreply, assign(socket, show_share: true, show_history: false)}
+  end
+
+  def handle_event("show-sync", _, socket) do
+    {:noreply, assign(socket, show_share: false, show_history: false)}
   end
 
   def handle_event("playlist", _, socket) do

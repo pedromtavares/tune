@@ -1,0 +1,89 @@
+<div class="row <%=unless @visible, do: "d-none"%>">
+    <div class="col">
+        <div class="card hover-shadow-lg">
+            <div class="card-header border-0 pb-0">
+                <div class="d-flex justify-content-between align-items-center">
+                </div>
+            </div>
+            <div class="card-body text-center">
+                <div class="avatar-group hover-avatar-ungroup mb-3">
+                    <a href="#" class="avatar rounded-circle avatar-xl hover-translate-y-n3 user-avatar">
+                        <%= img_tag user_avatar(@current_session[:profile]), alt: @current_session[:profile].name %>
+                    </a>
+                    <a href="#" class="avatar rounded-circle avatar-xl hover-translate-y-n3 user-avatar">
+                        <%= img_tag user_avatar(@session[:profile]), alt: @session[:profile].name %>
+                    </a>
+                </div>
+                <h5 class="mb-3"><%=first_names(@current_session, @session)%></h5>
+                <%=if @match.score && @match.score > 0 do %>
+                    <div class="row d-flex justify-content-center mb-3">
+                        <div class="col">
+                            <h6 class="text-muted mb-1">Sinttonia</h6>
+                            <div class="row justify-content-center">
+                                <div class="margin-auto">
+                                    <div phx-hook="ProgressCircle" class="progress-circle progress-sm text-success" id="progress-circle-1" data-progress="<%=@match.score%>" data-text="<%=score_label(@match.score)%>" data-color="success"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% end %>
+                <div class="avatar-group hover-avatar-ungroup mb-3">
+                    <%= for artist <- Enum.take(@match[:artists],5) do %>
+                        <div class="avatar rounded-circle avatar-lg">
+                            <%= img_tag artwork(artist), alt: artist.name %>
+                        </div>
+                    <% end %>
+                </div>
+
+                <span class="clearfix"></span>
+                <small><%=Enum.take(@match[:artists],5) |> Enum.map(& &1.name) |> Enum.join(", ") %></small>
+            </div>
+            <div class="card-footer text-center px-0">
+                <%=if @playlist do %>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <a href=<%=@playlist.uri%> class="btn btn-slack btn-icon-label">
+                                <span class="btn-inner--icon">
+                                <i class="fab fa-spotify"></i>
+                                </span>
+                                <span class="btn-inner--text">Abrir no Spotify</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="row pb-5">
+                        <div class="col">
+                            <iframe src="https://open.spotify.com/embed/playlist/<%=@playlist.id%>" width="100%" height="330" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+                        </div>
+                    </div>
+                <% else %>
+                    <div class="actions d-flex justify-content-center px-4">
+                        <%=if length(@current_session[:artists][:long]) > 0 && length(@session[:artists][:long]) > 0 do %>
+                            <%= if @creating do %>
+                                <button type="button" class="btn btn-slack btn-icon-label disabled">
+                                    <span class="btn-inner--icon">
+                                    <i class="fa fa-spinner fa-spin"></i>
+                                    </span>
+                                    <span class="btn-inner--text">Sinttonizando...</span>
+                                </button>
+                            <% else %>
+                                <button type="button" class="btn btn-slack btn-icon-label" phx-click="playlist">
+                                    <span class="btn-inner--icon">
+                                    <i class="fab fa-spotify"></i>
+                                    </span>
+                                    <span class="btn-inner--text">Sinttonizar Playlist</span>
+                                </button>
+                            <% end %>
+                        <% else %>
+                            <button type="button" class="btn btn-slack btn-icon-label disabled">
+                                <span class="btn-inner--icon">
+                                <i class="fa fa-spinner fa-spin"></i>
+                                </span>
+                                <span class="btn-inner--text">Sinttonizando...</span>
+                            </button>
+                        <% end %>
+                    </div>
+                <% end %>
+            </div>
+        </div>
+    </div>
+</div>
