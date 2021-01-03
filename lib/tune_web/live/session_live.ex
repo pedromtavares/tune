@@ -6,7 +6,7 @@ defmodule TuneWeb.SessionLive do
 
   def mount(_, session, socket) do
     case Tune.Auth.load_user(session) do
-      {:authenticated, session_id, user} ->
+      {:authenticated, session_id, session_user} ->
         if connected?(socket) do
           TuneWeb.subscribe("session-#{session_id}")
         end
@@ -19,10 +19,10 @@ defmodule TuneWeb.SessionLive do
          socket
          |> assign(
            current_session_id: session_id,
-           user: user,
-           current_session: Sessions.initial_session(user),
+           session_user: session_user,
+           current_session: Sessions.initial_session(session_user),
            current_user: current_user,
-           qr_code: Tune.generate_qr_code(session_id),
+           qr_code: TuneWeb.session_qr_code(socket, session_id),
            playlist: nil,
            creating: current_user.auto_sync,
            redirects: [],
@@ -104,9 +104,9 @@ defmodule TuneWeb.SessionLive do
       assigns.debug
     )
 
-    unless assigns.current_user.auto_sync do
-      Process.send_after(self(), {:redirect_to_playlist, playlist}, 1000)
-    end
+    # unless assigns.current_user.auto_sync do
+    #   Process.send_after(self(), {:redirect_to_playlist, playlist}, 1000)
+    # end
 
     {:noreply, assign(socket, playlist: playlist)}
   end

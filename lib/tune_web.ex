@@ -1,5 +1,6 @@
 defmodule TuneWeb do
   @moduledoc false
+  @local_ip "192.168.15.5"
 
   def subscribe(channel) do
     Phoenix.PubSub.subscribe(Tune.PubSub, channel)
@@ -7,6 +8,14 @@ defmodule TuneWeb do
 
   def broadcast(channel, event, payload) do
     Phoenix.PubSub.broadcast(Tune.PubSub, channel, {event, payload})
+  end
+
+  def session_qr_code(socket_or_conn, session_id) do
+    socket_or_conn
+    |> TuneWeb.Router.Helpers.live_url(TuneWeb.SessionLive, session_id)
+    |> String.replace("localhost", @local_ip)
+    |> EQRCode.encode()
+    |> EQRCode.svg(width: 270)
   end
 
   def controller do

@@ -3,12 +3,12 @@
         <div class="card-group">
             <div class="card bg-gradient-primary px-4 py-3 border-0 mb-0" style="background: linear-gradient(-180deg,#36b37e,#36b3a4)!important;border-radius:0">
                 <div class="card-body text-center pb-0">
-                    <h5 class="h4 text-white">Bem-vindo(a) <%=first_name(@user.name)%>!</h5>
+                    <h5 class="h4 text-white">Bem-vindo(a) <%=first_name(@session_user.name)%>!</h5>
                     <p class="mt-4 mb-4 text-white">
                         Toque no botão abaixo para compartilhar seu perfil com seus amigos, ou peça para escanearem seu QR code.<br/>
 
-                        <input type="text" class="form-control my-3" readonly value="https://sinttonia.com/<%=@current_session_id%>"/>
-                        <a href="javascript:;" class="btn btn-secondary"  data-link="https://sinttonia.com/<%=@current_session_id%>" data-text="Link do perfil copiado!" phx-hook="ShareLink" id="session-share-link">
+                        <input type="text" class="form-control my-3" readonly value="<%=Routes.live_url(@socket, TuneWeb.SessionLive, @current_session.id)%>"/>
+                        <a href="javascript:;" class="btn btn-secondary"  data-link="<%=Routes.live_url(@socket, TuneWeb.SessionLive, @current_session.id)%>" data-text="Link do perfil copiado!" phx-hook="ShareLink" id="session-share-link">
                             <i class="fa fa-share"></i> Compartilhar Link
                         </a>
                     </p>

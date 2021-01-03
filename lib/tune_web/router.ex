@@ -42,12 +42,6 @@ defmodule TuneWeb.Router do
     post "/logout", AuthController, :delete
   end
 
-  scope "/", TuneWeb do
-    pipe_through [:browser, :authenticated]
-
-    live "/:session_id", SessionLive
-  end
-
   import Phoenix.LiveDashboard.Router
 
   scope "/" do
@@ -55,7 +49,16 @@ defmodule TuneWeb.Router do
 
     live_dashboard "/dashboard",
       metrics: TuneWeb.Telemetry,
-      metrics_history: {TuneWeb.Telemetry.Storage, :metrics_history, []}
+      metrics_history: {TuneWeb.Telemetry.Storage, :metrics_history, []},
+      additional_pages: [
+        spotify_sessions: TuneWeb.LiveDashboard.SpotifySessionsPage
+      ]
+  end
+
+  scope "/", TuneWeb do
+    pipe_through [:browser, :authenticated]
+
+    live "/:session_id", SessionLive
   end
 
   defp admin_auth(conn, _opts) do

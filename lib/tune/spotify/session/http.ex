@@ -302,6 +302,11 @@ defmodule Tune.Spotify.Session.HTTP do
     GenStateMachine.call(via(session_id), :follow_good_vibes)
   end
 
+  @impl true
+  def subscribers_count(session_id) do
+    GenStateMachine.call(via(session_id), :subscribers_count)
+  end
+
   ################################################################################
   ################################## CALLBACKS ###################################
   ################################################################################
@@ -326,9 +331,9 @@ defmodule Tune.Spotify.Session.HTTP do
         broadcast(data.session_id, {:player_token, data.credentials.token})
 
         actions = [
-          {:next_event, :internal, :get_now_playing},
-          {:next_event, :internal, :get_devices},
-          {:state_timeout, data.timeouts.refresh, :refresh_data},
+          # {:next_event, :internal, :get_now_playing},
+          # {:next_event, :internal, :get_devices},
+          # {:state_timeout, data.timeouts.refresh, :refresh_data},
           {{:timeout, :inactivity}, data.timeouts.inactivity, :expired}
         ]
 
@@ -392,59 +397,63 @@ defmodule Tune.Spotify.Session.HTTP do
   end
 
   def handle_event(:internal, :get_devices, :authenticated, data) do
-    case spotify_client().get_devices(data.credentials.token) do
-      {:error, :invalid_token} ->
-        {:stop, :invalid_token}
+    {:keep_state, data}
+    # case spotify_client().get_devices(data.credentials.token) do
+    #   {:error, :invalid_token} ->
+    #     {:stop, :invalid_token}
 
-      {:error, :expired_token} ->
-        action = {:next_event, :internal, :refresh}
-        {:next_state, :expired, data, action}
+    #   {:error, :expired_token} ->
+    #     action = {:next_event, :internal, :refresh}
+    #     {:next_state, :expired, data, action}
 
-      # abnormal http error, retry in 5 seconds
-      {:error, _reason} ->
-        action = {:state_timeout, data.timeouts.retry, :get_devices}
-        {:keep_state_and_data, action}
+    #   # abnormal http error, retry in 5 seconds
+    #   {:error, _reason} ->
+    #     action = {:state_timeout, data.timeouts.retry, :get_devices}
+    #     {:keep_state_and_data, action}
 
-      {:ok, devices} ->
-        if data.devices !== devices do
-          broadcast(data.session_id, {:devices, devices})
-        end
+    #   {:ok, devices} ->
+    #     if data.devices !== devices do
+    #       broadcast(data.session_id, {:devices, devices})
+    #     end
 
-        data = %{data | devices: devices}
+    #     data = %{data | devices: devices}
 
-        {:keep_state, data}
-    end
+    #     {:keep_state, data}
+    # end
   end
 
   def handle_event(:state_timeout, :refresh_data, :authenticated, data) do
-    with {:ok, now_playing} <- spotify_client().now_playing(data.credentials.token),
-         {:ok, devices} <- spotify_client().get_devices(data.credentials.token) do
-      if data.now_playing !== now_playing do
-        broadcast(data.session_id, {:now_playing, now_playing})
-      end
+    action = {:state_timeout, data.timeouts.refresh, :refresh_data}
 
-      if data.devices !== devices do
-        broadcast(data.session_id, {:devices, devices})
-      end
+    {:keep_state, data, action}
+    # with {:ok, now_playing} <- spotify_client().now_playing(data.credentials.token),
+    #      {:ok, devices} <- spotify_client().get_devices(data.credentials.token) do
+    #   if data.now_playing !== now_playing do
+    #     broadcast(data.session_id, {:now_playing, now_playing})
+    #   end
 
-      data = %{data | now_playing: now_playing, devices: devices}
+    #   if data.devices !== devices do
+    #     broadcast(data.session_id, {:devices, devices})
+    #   end
 
-      action = {:state_timeout, data.timeouts.refresh, :refresh_data}
+    #   data = %{data | now_playing: now_playing, devices: devices}
 
-      {:keep_state, data, action}
-    else
-      {:error, :invalid_token} ->
-        {:stop, :invalid_token}
+    #   action = {:state_timeout, data.timeouts.refresh, :refresh_data}
 
-      {:error, :expired_token} ->
-        action = {:next_event, :internal, :refresh}
-        {:next_state, :expired, data, action}
+    #   {:keep_state, data, action}
+    # else
+    #   {:error, :invalid_token} ->
+    #     {:stop, :invalid_token}
 
-      # abnormal http error, retry in 5 seconds
-      {:error, _reason} ->
-        action = {:state_timeout, data.timeouts.retry, :refresh_data}
-        {:keep_state_and_data, action}
-    end
+    #   {:error, :expired_token} ->
+    #     action = {:next_event, :internal, :refresh}
+    #     {:next_state, :expired, data, action}
+
+    #   # abnormal http error, retry in 5 seconds
+    #   {:error, _reason} ->
+    #     action = {:state_timeout, data.timeouts.retry, :refresh_data}
+    #     {:keep_state_and_data, action}
+    # end
   end
 
   def handle_event({:call, from}, {:subscribe, pid}, _state, data) do
@@ -452,6 +461,11 @@ defmodule Tune.Spotify.Session.HTTP do
     Process.monitor(pid)
     action = {:reply, from, :ok}
     {:keep_state, %{data | subscribers: new_subscribers}, action}
+  end
+
+  def handle_event({:call, from}, :subscribers_count, _state, data) do
+    action = {:reply, from, MapSet.size(data.subscribers)}
+    {:keep_state_and_data, action}
   end
 
   def handle_event({:call, from}, msg, :authenticated, data) do

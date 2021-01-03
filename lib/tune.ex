@@ -4,15 +4,6 @@ defmodule Tune do
 
   def spotify_session, do: Application.get_env(:tune, :spotify_session)
 
-  def generate_qr_code(session_id) do
-    # base = "http://192.168.15.5:4000"
-    base = "https://sinttonia.com"
-
-    "#{base}/#{session_id}"
-    |> EQRCode.encode()
-    |> EQRCode.svg(width: 270)
-  end
-
   def get_user_by_spotify_id(spotify_id) do
     Repo.get_by(User, spotify_id: spotify_id)
   end
@@ -109,15 +100,10 @@ defmodule Tune do
 
     description = "Criada em #{date} com o melhor de #{artists_label}. ID ##{connection.id}"
 
-    {:ok, playlist} =
-      spotify_session().create_playlist(
-        origin.id,
-        name,
-        description,
-        matched[:chosen]
-      )
-
-    playlist
+    case spotify_session().create_playlist(origin.id, name, description, matched[:chosen]) do
+      {:ok, playlist} -> playlist
+      _ -> nil
+    end
   end
 
   defp first_name(%{name: name}) do

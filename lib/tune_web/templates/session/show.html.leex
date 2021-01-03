@@ -3,7 +3,7 @@
 <% end %>
 
 <%=render "_history.html", visible: @show_history, current_session: @current_session %>
-<%=render "_share.html", visible: @show_share, user: @user, current_session_id: @current_session_id, current_user: @current_user, qr_code: @qr_code, socket: @socket %>
+<%=render "_share.html", visible: @show_share, session_user: @session_user, current_session: @current_session, current_user: @current_user, qr_code: @qr_code, socket: @socket %>
 <%= unless @is_current do %>
     <%=render "_sync.html", visible: !@show_history && !@show_share, current_session: @current_session, session: @session, match: @match, playlist: @playlist, creating: @creating %>
 <% end %>
@@ -129,7 +129,7 @@
         </div>
     </div>
 
-    <div class="row tracks">
+    <div class="row tracks" style="margin-bottom: 200px">
         <div class="col">
             <div class="row">
                 <div class="col">

@@ -51,7 +51,7 @@ defmodule TuneWeb.AuthController do
   @spec delete(Plug.Conn.t(), any) :: Plug.Conn.t()
   def delete(conn, _params) do
     conn
-    |> put_flash(:info, gettext("Logged out"))
+    |> put_flash(:info, "Saiu.")
     |> configure_session(drop: true)
     |> redirect(to: "/")
   end
