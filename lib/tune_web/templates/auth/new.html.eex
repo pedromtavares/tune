@@ -1,33 +1,44 @@
-<div class="row">
-    <div class="col">
-        <div class="card-group">
-            <div class="card bg-gradient-primary px-4 py-5 border-0 mb-0" style="background: linear-gradient(-180deg,#36b37e,#000)!important;">
-                <div class="card-body text-center">
-                    <h5 class="h4 text-white">Sinttonia</h5>
-                    <%= if @session do %>
-                        <div class="avatar rounded-circle avatar-xl hover-translate-y-n3 user-avatar">
-                            <%= img_tag @session.user.avatar_url, alt: @session.user.name %>
-                        </div>
-                    <% end %>
-                    <p class="mt-2 mb-0 text-white">
-                        <%= if @session do %>
-                            <strong><%=TuneWeb.SessionView.first_name(@session.user.name) %></strong> quer sinttonizar com você
-                        <% else %>
-                           Sinttonizando personalidades através da música
-                        <% end %>
-                        <br/><br/>
-
-                        Para começar, entre pela sua conta no Spotify
-                        <br/><br/>
-                        <%= link to: Routes.auth_path(@conn, :request, :spotify), class: "btn btn-slack btn-icon-label"  do %>
-                            <span class="btn-inner--icon">
-                            <i class="fab fa-spotify"></i>
-                            </span>
-                            <span class="btn-inner--text">Entrar pelo Spotify</span>
-                        <% end %>
-                    </p>
-                </div>
+<%= if @session do %>
+    <div class="invited-home text-center">
+        <div class="margin-auto mt-5 mb-5">
+            <img src="/images/logo.png" style="width: 200px" class="text-center"/>
+        </div>
+        <div class="card red-background text-center m-3 p-3">
+            <div class="avatar rounded-circle avatar-xl hover-translate-y-n3 user-avatar mt-2 mb-4 w-100">
+                <%= img_tag @session.user.avatar_url, alt: @session.user.name %>
             </div>
+            <h5 class="text-white main-font"><%=TuneWeb.SessionView.first_name(@session.user.name) %></strong> quer Sinttonizar com você</h5>
+
+            <small class="mt-4 text-white sub-font">
+                <%= link to: Routes.auth_path(@conn, :request, :spotify), class: "btn btn-success btn-icon-label rounded-pill"  do %>
+                    <span class="btn-inner--icon">
+                    <i class="fab fa-2x fa-spotify"></i>
+                    </span>
+                    <span class="btn-inner--text">Acessar Spotify</span>
+                <% end %>
+                <br/><br/>
+                Para começar, entre na sua<br/> conta do Spotify
+            </small>
         </div>
     </div>
-</div>
+<% else %>
+    <div class="basic-home flex-center text-center">
+        <div class="margin-auto">
+            <img src="/images/logo.png" style="width: 200px" class="text-center"/>
+        </div>
+        <p class="mt-3 mb-4 text-white main-font" style="line-height:1rem">
+            compartilhe sua vibe,<br/>
+            sinttonize o que gosta de ouvir
+        </p>
+        <small class="mt-4 text-white sub-font">
+            <%= link to: Routes.auth_path(@conn, :request, :spotify), class: "btn btn-success btn-icon-label rounded-pill"  do %>
+                <span class="btn-inner--icon">
+                <i class="fab fa-2x fa-spotify"></i>
+                </span>
+                <span class="btn-inner--text">Acessar Spotify</span>
+            <% end %>
+            <br/><br/>
+            Para começar, entre na sua<br/> conta do Spotify
+        </small>
+    </div>
+<% end %>

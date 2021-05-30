@@ -199,7 +199,8 @@ function setupProgressCircles(updating) {
         color = $this.data().color ? $this.data().color : 'primary';
 
       let options = {
-        color: PurposeStyle.colors.theme[color],
+        // color: PurposeStyle.colors.theme[color],
+        color: "#7cda0f",
         strokeWidth: 7,
         trailWidth: 2,
         text: {

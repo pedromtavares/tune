@@ -1,35 +1,39 @@
-<div class="row mb-2 <%=unless @visible, do: "d-none"%>">
-    <div class="col">
-        <div class="card-group">
-            <div class="card bg-gradient-primary px-4 py-3 border-0 mb-0" style="background: linear-gradient(-180deg,#36b37e,#36b3a4)!important;border-radius:0">
-                <div class="card-body text-center pb-0">
-                    <h5 class="h4 text-white">Bem-vindo(a) <%=first_name(@session_user.name)%>!</h5>
-                    <p class="mt-4 mb-4 text-white">
-                        Toque no botão abaixo para compartilhar seu perfil com seus amigos, ou peça para escanearem seu QR code.<br/>
+<div class="container-fluid pb-5 <%=unless @visible, do: "d-none"%>">
+    <div class="row">
+        <div class="col">
+            <div class="card-group">
+                <div class="card p-0 border-0 mb-0 rounded-0 purple-background">
+                    <div class="card-body text-center pb-0">
+                        <h5 class="h6 text-white">Crie a playlist perfeita com seus amigos</h5>
+                        <p class="mt-4 mb-4 small text-white">
+                            Toque no botão abaixo para compartilhar seu perfil com seus amigos, ou peça para escanearem seu QR code.<br/>
+                        </p>
+                        <div class="card p-3 green-background">
+                            <input type="text" class="form-control my-3" readonly value="<%=Routes.live_url(@socket, TuneWeb.SessionLive, @current_session.id)%>"/>
+                            <a href="javascript:;" class="btn btn-black"  data-link="<%=Routes.live_url(@socket, TuneWeb.SessionLive, @current_session.id)%>" data-text="Link do perfil copiado!" phx-hook="ShareLink" id="session-share-link">
+                                <i class="fa fa-share mr-2"></i>Compartilhar Link
+                            </a>
+                            <div class="custom-control custom-switch mt-3">
+                                <input type="checkbox" class="custom-control-input" id="customSwitch1" <%=if @current_user.auto_sync, do: "checked" %> phx-click="auto-sync">
+                                <label class="custom-control-label text-dark font-weight-bold" style="font-size: 0.8rem" for="customSwitch1">Sinttonizar automaticamente</label>
+                            </div>
+                        </div>
 
-                        <input type="text" class="form-control my-3" readonly value="<%=Routes.live_url(@socket, TuneWeb.SessionLive, @current_session.id)%>"/>
-                        <a href="javascript:;" class="btn btn-secondary"  data-link="<%=Routes.live_url(@socket, TuneWeb.SessionLive, @current_session.id)%>" data-text="Link do perfil copiado!" phx-hook="ShareLink" id="session-share-link">
-                            <i class="fa fa-share"></i> Compartilhar Link
-                        </a>
-                    </p>
-                    <div class="custom-control custom-switch">
-                        <input type="checkbox" class="custom-control-input" id="customSwitch1" <%=if @current_user.auto_sync, do: "checked" %> phx-click="auto-sync">
-                        <label class="custom-control-label text-white" for="customSwitch1">Sinttonizar automaticamente</label>
                     </div>
                 </div>
-            </div>
-            <div class="card bg-gradient-dark border-0" style="background: linear-gradient(180deg,#36b3a4,#36b37e)!important;border-top-left-radius:0;border-top-right-radius:0">
-                <div class="card-body text-center" style="padding-bottom: 100px">
-                    <p class="text-white bg-white" style="width: 270px;margin:auto">
-                        <%=raw @qr_code %>
-                    </p>
-                    <div class="row mt-5 text-center d-flex justify-content-center">
-                    <%= link to: Routes.auth_path(@socket, :delete), method: :post, class: "btn btn-sm btn-secondary text-center" do %>
-                        <i class="fa fa-sign-out mr-2"></i>Sair</a>
-                    <% end %>
-                </div>
-                </div>
+                <div class="card bg-gradient-dark border-0 rounded-0" style="background: #170e21 !important">
+                    <div class="card-body text-center" style="padding-bottom: 100px">
+                        <p class="text-white bg-white border rounded" style="width: 275px;margin:auto">
+                            <%=raw @qr_code %>
+                        </p>
+                        <div class="row mt-5 text-center d-flex justify-content-center">
+                        <%= link to: Routes.auth_path(@socket, :delete), method: :post, class: "btn btn-sm btn-secondary text-center bg-white" do %>
+                            <i class="fa fa-sign-out mr-2"></i>Sair</a>
+                        <% end %>
+                    </div>
+                    </div>
 
+                </div>
             </div>
         </div>
     </div>

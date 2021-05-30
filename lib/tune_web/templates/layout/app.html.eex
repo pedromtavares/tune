@@ -1,4 +1,4 @@
-<div class="page-content mt-3">
+<div class="page-content p-0">
     <%= if get_flash(@conn, :error) do %>
         <p class="alert alert-danger text-center" role="alert"><%= get_flash(@conn, :error) %></p>
     <% end %>

@@ -6,7 +6,6 @@ defmodule TuneWeb.Router do
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_live_flash
-    plug :put_root_layout, {TuneWeb.LayoutView, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
@@ -17,6 +16,10 @@ defmodule TuneWeb.Router do
 
   pipeline :admin do
     plug :admin_auth
+  end
+
+  pipeline :root_layout do
+    plug :put_root_layout, {TuneWeb.LayoutView, :root}
   end
 
   import TuneWeb.AuthController, only: [ensure_authenticated: 2]
@@ -56,7 +59,7 @@ defmodule TuneWeb.Router do
   end
 
   scope "/", TuneWeb do
-    pipe_through [:browser, :authenticated]
+    pipe_through [:browser, :root_layout, :authenticated]
 
     live "/:session_id", SessionLive
   end

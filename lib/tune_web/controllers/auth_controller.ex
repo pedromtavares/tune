@@ -44,7 +44,10 @@ defmodule TuneWeb.AuthController do
       target_session =
         get_session(conn, :target_session_id) |> Tune.Spotify.Supervisor.get_session()
 
-      render(conn, "new.html", session: target_session)
+      render(conn, "new.html",
+        session: target_session,
+        layout: {TuneWeb.LayoutView, "homepage.html"}
+      )
     end
   end
 
