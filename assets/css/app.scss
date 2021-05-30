@@ -66,9 +66,11 @@ body{
   min-width: 100%;
   min-height: 100%;
   position: relative;
+  background-repeat: no-repeat;
 }
 .basic-home::before, .invited-home::before, .sync-bg::before {
   background-size: cover;
+  background-repeat: no-repeat;
   content: "";
   display: block;
   position: absolute;
