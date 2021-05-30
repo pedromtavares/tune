@@ -116,6 +116,15 @@ Hooks.Loading = {
   }
 }
 
+Hooks.Disappear = {
+  mounted() {
+    let el = this.el;
+    setTimeout(function () {
+      $(el).fadeOut();
+    }, 10000);
+  }
+}
+
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")
   .getAttribute("content");

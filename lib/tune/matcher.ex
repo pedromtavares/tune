@@ -49,7 +49,7 @@ defmodule Tune.Matcher do
 
     chosen =
       chosen_tracks(tracks, by_artists, session_id)
-      |> add_recommendations(artists, session_id)
+      |> add_recommendations(artists, all_origin_artists, all_target_artists, session_id)
       |> tracks_with_audio_features(session_id)
       |> final_sort(matched_ids)
 
@@ -125,7 +125,16 @@ defmodule Tune.Matcher do
     end
   end
 
-  def add_recommendations(tracks, artists, session_id) do
+  def add_recommendations(tracks, artists, origin_artists, target_artists, session_id)
+      when length(artists) == 0 do
+    rest = @limit - length(tracks)
+
+    artists = Enum.take(origin_artists, 5) ++ Enum.take(target_artists, 5)
+
+    tracks ++ recommended_tracks(session_id, artists, rest)
+  end
+
+  def add_recommendations(tracks, artists, _, _, session_id) do
     rest = @limit - length(tracks)
 
     tracks ++ recommended_tracks(session_id, artists, rest)

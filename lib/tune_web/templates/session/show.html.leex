@@ -1,5 +1,5 @@
 <%= if live_flash(@flash, :error) do %>
-    <p class="alert alert-danger text-center" role="alert"><%= live_flash(@flash, :error) %></p>
+    <p class="alert alert-danger text-center" role="alert" id="error-alert" phx-hook="Disappear"><i class="fa fa-exclamation-circle fa-2x"></i><br/><%= live_flash(@flash, :error) %></p>
 <% end %>
 
 <%=render "_history.html", visible: @show_history, current_session: @current_session, socket: @socket %>
@@ -203,7 +203,7 @@
                     </span>
                 </button>
             </div>
-            <%=if @last_session_id do %>
+            <%=if @last_session_id && !@is_current do %>
                 <div class="col">
                     <button class="nav-box btn-white btn <%=if !@show_share && !@show_history, do: "disabled"%>" type="button" phx-click="show-sync" phx-hook="Loading" id="sync-button">
                         <span class="loading-text">

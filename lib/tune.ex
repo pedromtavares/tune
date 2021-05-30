@@ -91,16 +91,18 @@ defmodule Tune do
         _ -> %{id: origin.id}
       end
 
-    artists = matched[:artists] |> Enum.take(5) |> Enum.map(& &1.name)
-    first_four = Enum.take(artists, 4)
-    artists_label = "#{Enum.join(first_four, ", ")} e #{List.last(artists)}"
     now = Date.utc_today()
     date = "#{now.day}/#{now.month}/#{now.year}"
     name = "Sinttonia.com - #{first_name(origin.profile)} & #{first_name(target.profile)}"
 
-    description = "Criada em #{date} com o melhor de #{artists_label}. ID ##{connection.id}"
+    description =
+      if length(matched.artists) > 0 do
+        "Criada em #{date} com o melhor de #{artists_label(matched.artists)}. ID ##{connection.id}"
+      else
+        "Criada em #{date}. ID ##{connection.id}"
+      end
 
-    case spotify_session().create_playlist(origin.id, name, description, matched[:chosen]) do
+    case spotify_session().create_playlist(origin.id, name, description, matched.chosen) do
       {:ok, playlist} -> playlist
       _ -> nil
     end
@@ -110,5 +112,18 @@ defmodule Tune do
     name
     |> String.split(" ")
     |> List.first()
+  end
+
+  defp artists_label(matched_artists) do
+    artists = matched_artists |> Enum.take(5) |> Enum.map(& &1.name)
+    last = List.last(artists)
+
+    case length(artists) do
+      5 -> "#{Enum.join(Enum.take(artists, 4), ", ")} e #{last}"
+      4 -> "#{Enum.join(Enum.take(artists, 3), ", ")} e #{last}"
+      3 -> "#{Enum.join(Enum.take(artists, 2), ", ")} e #{last}"
+      2 -> "#{List.first(artists)} e #{last}"
+      _ -> last
+    end
   end
 end

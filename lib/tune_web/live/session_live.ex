@@ -159,6 +159,7 @@ defmodule TuneWeb.SessionLive do
     else
       {:noreply,
        socket
+       |> assign(last_session_id: nil)
        |> put_flash(
          :error,
          "O perfil que você tentou acessar não está disponível, por favor, tente novamente."

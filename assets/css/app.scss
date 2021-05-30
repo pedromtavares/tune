@@ -94,7 +94,11 @@ body{
   background-image: url(/images/bg3.png);
 }
 
-
+.alert-danger {
+  color: #f21b3f;
+  background-color: #7cda0f;
+  border-color: #7cda0f;
+}
 
 #bottom-bar{
   background: rgba(23,14,33, 0.9);

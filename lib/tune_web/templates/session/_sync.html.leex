@@ -10,7 +10,7 @@
                 </a>
             </div>
             <h5 class="mb-3 text-white"><%=first_names(@current_session, @session)%></h5>
-            <%=if @match.score && @match.score > 0 do %>
+            <%=if @match.score do %>
                 <div class="row d-flex justify-content-center mb-3">
                     <div class="col">
                         <h6 class="text-white mb-1">Sinttonia</h6>
@@ -22,16 +22,18 @@
                     </div>
                 </div>
             <% end %>
-            <div class="avatar-group hover-avatar-ungroup mb-3">
-                <%= for artist <- Enum.take(@match[:artists],5) do %>
-                    <div class="avatar rounded-circle avatar-lg">
-                        <%= img_tag artwork(artist), alt: artist.name %>
-                    </div>
-                <% end %>
-            </div>
+            <%= if length(@match.artists) > 0 do %>
+                <div class="avatar-group hover-avatar-ungroup mb-3">
+                    <%= for artist <- Enum.take(@match.artists,5) do %>
+                        <div class="avatar rounded-circle avatar-lg">
+                            <%= img_tag artwork(artist), alt: artist.name %>
+                        </div>
+                    <% end %>
+                </div>
 
-            <span class="clearfix"></span>
-            <small class="text-white"><%=Enum.take(@match[:artists],5) |> Enum.map(& &1.name) |> Enum.join(", ") %></small>
+                <span class="clearfix"></span>
+                <small class="text-white"><%=Enum.take(@match.artists,5) |> Enum.map(& &1.name) |> Enum.join(", ") %></small>
+            <% end %>
             <%=if @playlist do %>
                 <div class="row mb-3 mt-3">
                     <div class="col">
@@ -50,7 +52,7 @@
                 </div>
             <% else %>
                 <div class="actions d-flex justify-content-center px-4 mt-3 mb-3">
-                    <%=if length(@current_session[:artists][:long]) > 0 && length(@session[:artists][:long]) > 0 do %>
+                    <%=if @match.score && length(@current_session[:artists][:long]) > 0 && length(@session[:artists][:long]) > 0 do %>
                         <%= if @creating do %>
                             <button type="button" class="btn btn-success btn-icon-label disabled">
                                 <span class="btn-inner--icon">

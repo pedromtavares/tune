@@ -11,7 +11,7 @@ defmodule TuneWeb.SessionView do
   def score_label(score) when score > 75, do: "FORTE"
   def score_label(score) when score > 50, do: "ALTA"
   def score_label(score) when score > 25, do: "BOA"
-  def score_label(score) when score > 0, do: "LEVE"
+  def score_label(score), do: "LEVE"
 
   def name(%Track{name: name}), do: name
   def name(%Artist{name: name}), do: name
