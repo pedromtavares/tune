@@ -37,9 +37,9 @@
             <%=if @playlist do %>
                 <div class="row mb-3 mt-3">
                     <div class="col">
-                        <a href="<%=@playlist.uri%>" class="btn btn-success btn-icon-label">
+                        <a href="<%=@playlist.uri%>" class="btn btn-success btn-icon-label rounded-pill">
                             <span class="btn-inner--icon">
-                            <i class="fab fa-spotify"></i>
+                            <i class="fab fa-spotify fa-2x"></i>
                             </span>
                             <span class="btn-inner--text">Abrir no Spotify</span>
                         </a>
@@ -54,24 +54,24 @@
                 <div class="actions d-flex justify-content-center px-4 mt-3 mb-3">
                     <%=if @match.score && length(@current_session[:artists][:long]) > 0 && length(@session[:artists][:long]) > 0 do %>
                         <%= if @creating do %>
-                            <button type="button" class="btn btn-success btn-icon-label disabled">
+                            <button type="button" class="btn btn-success btn-icon-label disabled rounded-pill">
                                 <span class="btn-inner--icon">
-                                <i class="fa fa-spinner fa-spin"></i>
+                                <i class="fa fa-spinner fa-spin fa-2x"></i>
                                 </span>
                                 <span class="btn-inner--text">Sinttonizando...</span>
                             </button>
                         <% else %>
-                            <button type="button" class="btn btn-success btn-icon-label" phx-click="playlist">
+                            <button type="button" class="btn btn-success btn-icon-label rounded-pill" phx-click="playlist">
                                 <span class="btn-inner--icon">
-                                <i class="fab fa-spotify"></i>
+                                <i class="fab fa-spotify fa-2x"></i>
                                 </span>
                                 <span class="btn-inner--text">Sinttonizar Playlist</span>
                             </button>
                         <% end %>
                     <% else %>
-                        <button type="button" class="btn btn-success btn-icon-label disabled">
+                        <button type="button" class="btn btn-success btn-icon-label disabled rounded-pill">
                             <span class="btn-inner--icon">
-                            <i class="fa fa-spinner fa-spin"></i>
+                            <i class="fa fa-spinner fa-spin fa-2x"></i>
                             </span>
                             <span class="btn-inner--text">Sinttonizando...</span>
                         </button>
